@@ -20,3 +20,17 @@ String apiKey = "";
 #define PH_CALIBRATION 3.0        
 #define LEAD_CALIBRATION 0.05     
 #define MERCURY_CALIBRATION 0.02 
+
+void setup() {
+    Serial.begin(115200);
+   // Serial.println("\nInitializing system...");
+  
+    // Initialize WiFi
+    WiFi.begin(ssid, password);
+    Serial.print("Connecting to WiFi");
+    int wifiTimeout = 0;
+    while (WiFi.status() != WL_CONNECTED && wifiTimeout < 20) { // 20-second timeout
+      delay(500);
+      Serial.print(".");
+      wifiTimeout++;
+    }
