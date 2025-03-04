@@ -51,3 +51,11 @@ void setup() {
         delay(5000);
         return;
       }
+
+      // Read sensors
+    float salinity = readSalinity();
+    float pH = readPH();
+    float lead = readLead();
+    float mercury = readMercury();
+
+      
