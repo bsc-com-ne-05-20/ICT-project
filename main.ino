@@ -34,3 +34,20 @@ void setup() {
       Serial.print(".");
       wifiTimeout++;
     }
+
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\nConnected to WiFi!");
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+      } else {
+        Serial.println("\nFailed to connect to WiFi!");
+      }
+    }
+    
+    void loop() {
+      if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("WiFi disconnected! Attempting reconnection...");
+        WiFi.reconnect();
+        delay(5000);
+        return;
+      }
