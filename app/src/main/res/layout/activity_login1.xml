@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/back2"
+    android:gravity="center"
+    tools:context=".Login1">
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:textColor="#204921"
+        android:layout_margin="30dp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-condensed"
+        android:letterSpacing="0.1"
+        android:textAlignment="center"
+        android:text="Lets get you started with SSMS as:" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:layout_margin="15dp"
+        android:background="@drawable/box1"
+        android:gravity="center">
+        <CheckBox
+            android:id="@+id/checkBox1"
+            android:layout_width="250dp"
+            android:layout_margin="15dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:text="Extension worker" />
+
+        <CheckBox
+            android:id="@+id/checkBox2"
+            android:layout_width="250dp"
+            android:layout_marginBottom="15dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_gravity="center_horizontal"
+            android:textSize="18sp"
+            android:text="Farmer" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/getStartedBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="30dp"
+        android:backgroundTintMode="add"
+        android:text="Get started"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</LinearLayout>
