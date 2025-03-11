@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="main_color">#1ba977</color>
+    <color name="yellow">#fee27a</color>
+    <color name="blue">#77c9cf</color>
+    <color name="inactive">#B0BEC5</color> <!-- Example color for inactive -->
+    <color name="active">#FF000000</color> <!-- Example color for active -->
+</resources>
