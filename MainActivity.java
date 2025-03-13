@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     // Permissions
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_LOCATION_PERMISSION = 2;
+    private DataProcessor dataProcessor = new DataProcessor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,5 +223,19 @@ public class MainActivity extends AppCompatActivity {
                 textViewLog.append("pH: " + ph + ", Metals: " + metals + ", Salinity: " + salinity + "\n");
             });
         }
+    }
+     private void calculateAverages() {
+        float averagepH = dataProcessor.getAveragepH();
+        float averageMetals = dataProcessor.getAverageMetals();
+        float averageSalinity = dataProcessor.getAverageSalinity();
+
+        // Display averages in the UI
+        runOnUiThread(() -> {
+            textViewAverages.setText(
+                    "Average pH: " + averagepH + "\n" +
+                    "Average Metals: " + averageMetals + "\n" +
+                    "Average Salinity: " + averageSalinity
+            );
+        });
     }
 }
