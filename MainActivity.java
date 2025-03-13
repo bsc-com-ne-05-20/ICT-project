@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private BluetoothSocket bluetoothSocket;
     private InputStream inputStream;
     private OutputStream outputStream;
+    private TextView textViewAverages;
 
     // Handler for Bluetooth communication
     private Handler handler = new Handler();
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         textViewMetals = findViewById(R.id.textViewMetals);
         textViewSalinity = findViewById(R.id.textViewSalinity);
         textViewLog = findViewById(R.id.textViewLog);
+        textViewAverages = findViewById(R.id.textViewAverages)
 
         // Disable Disconnect button initially
         buttonDisconnect.setEnabled(false);
