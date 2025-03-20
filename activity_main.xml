@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- Connect Button -->
+    <Button
+        android:id="@+id/buttonConnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connect"
+        android:backgroundTint="@color/green"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"
+        android:drawableStart="@drawable/baseline_bluetooth_24" />
+
+    <!-- Disconnect Button -->
+    <Button
+        android:id="@+id/buttonDisconnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Disconnect"
+        android:backgroundTint="@color/red"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp"
+        android:enabled="false"
+        android:drawableStart="@drawable/baseline_bluetooth_disabled_24" />
+
+    <!-- Calculate Averages Button -->
+    <Button
+        android:id="@+id/buttonCalculateAverages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calculate Averages"
+        android:backgroundTint="@color/blue"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"
+        android:drawableStart="@drawable/calculate_24dp_e3e3e3_fill0_wght400_grad0_opsz24" />
+
+    <!-- Soil pH Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/light_green"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/monitor_heart_24dp_e3e3e3_fill0_wght400_grad0_opsz24"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/textViewPh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Soil pH: --"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Heavy Metals Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/light_orange"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/electric_meter_24dp_e3e3e3_fill0_wght400_grad0_opsz24"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/textViewMetals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Heavy Metals: --"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Soil Salinity Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/light_blue"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/salinity_24dp_e3e3e3_fill0_wght400_grad0_opsz24"
+                android:layout_marginEnd="16dp" />
+
+            <TextView
+                android:id="@+id/textViewSalinity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Soil Salinity: --"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Averages Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/light_purple"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textViewAverages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Averages will appear here"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="8dp" />
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/avg_pace_24dp_e3e3e3_fill0_wght400_grad0_opsz24"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Logs Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/light_gray"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textViewLog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Logs will appear here"
+                android:textSize="14sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
