@@ -2,16 +2,16 @@
     <string name="app_name">SSMS project app</string>
 
     //Headings
-    <string name="heading_one">Quick &amp; Easy Payments</string>
-    <string name="heading_two">Instant Notifications</string>
-    <string name="heading_three">Cashless Payment</string>
-    <string name="heading_fourth">Pay Anywhere</string>
+    <string name="heading_one">Smarter Farming Starts Here</string>
+    <string name="heading_two">Monitor Soil Conditions in Real Time</string>
+    <string name="heading_three">Stay Notified and Take Action</string>
+    <string name="heading_fourth">Get Started with SSMS Today</string>
 
     //Description
-    <string name="desc_one">Grow your Business By Accepting Card Payments with The New Card Reader</string>
-    <string name="desc_two">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</string>
-    <string name="desc_three">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</string>
-    <string name="desc_fourth">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</string>
+    <string name="desc_one">Take control of your soil health with advanced monitoring. SSMS helps you make data-driven decisions for better crop growth and higher yields.</string>
+    <string name="desc_two">Track key soil parameters such as moisture, pH, temperature, and nutrients. Get instant insights to keep your soil healthy and productive.</string>
+    <string name="desc_three">Receive smart alerts and expert recommendations based on real-time data. Ensure optimal conditions for your crops at all times.</string>
+    <string name="desc_fourth">Join a growing community of farmers using technology to improve agriculture. Transform the way you monitor soil health!</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -17,7 +17,7 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     Context context;
 
-    int[] images = {R.drawable.image1, R.drawable.image2, R.drawable.image3, R.drawable.image4};
+    int[] images = {R.drawable.page1, R.drawable.page2, R.drawable.page3, R.drawable.page4};
     int[] titles = {R.string.heading_one, R.string.heading_two, R.string.heading_three, R.string.heading_fourth};
     int[] descriptions = {R.string.desc_one, R.string.desc_two, R.string.desc_three, R.string.desc_fourth};
 
