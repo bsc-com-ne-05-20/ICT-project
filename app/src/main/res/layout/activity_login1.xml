@@ -39,7 +39,7 @@
             android:layout_gravity="center_horizontal"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:text="Extension worker" />
+            android:text="Coorporate" />
 
         <CheckBox
             android:id="@+id/checkBox2"
@@ -49,7 +49,7 @@
             android:textColor="@color/black"
             android:layout_gravity="center_horizontal"
             android:textSize="18sp"
-            android:text="Farmer" />
+            android:text="individual farmer" />
     </LinearLayout>
 
     <Button
