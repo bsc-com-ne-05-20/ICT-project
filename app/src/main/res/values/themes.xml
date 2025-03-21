@@ -2,8 +2,16 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.SSMSProjectApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/main_color</item>
     </style>
 
     <style name="Theme.SSMSProjectApp" parent="Base.Theme.SSMSProjectApp" />
+
+
+    <style name="dialoganimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>
+    </style>
+
+
 </resources>
