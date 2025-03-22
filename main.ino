@@ -33,3 +33,10 @@ TinyGPSPlus gps;
 // Sensor Pins (Analog)
 #define MOISTURE_PIN 34
 #define SALINITY_PIN 35
+
+void powerOnGPS() {
+  gpsSerial.println("AT+CGNSPWR=1");  // Power on GPS
+  delay(200);
+  gpsSerial.println("AT+CGNSURC=2");  // Set update rate to 1Hz
+  delay(200);
+}
