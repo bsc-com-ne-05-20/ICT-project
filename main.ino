@@ -53,3 +53,42 @@ doc["potassium"] = k;
 doc["moisture"] = moisture;
 doc["salinity"] = salinity;
 
+if (gps.location.isValid()) {
+  doc["latitude"] = String(gps.location.lat(), 6);
+  doc["longitude"] = String(gps.location.lng(), 6);
+} else {
+  doc["location"] = "unavailable";
+}
+
+String output;
+serializeJson(doc, output);
+return output;
+}
+
+void readModbusSensor(float *ph, float *temp, float *npk) {
+  digitalWrite(MAX485_DE_RE, HIGH);
+  delay(10);
+
+  // Read pH (register 0x0000)
+  uint8_t result = node.readInputRegisters(0x0000, 1);
+  if (result == node.ku8MBSuccess) {
+    *ph = node.getResponseBuffer(0) / 10.0;
+  }
+
+  // Read Temperature (register 0x0001)
+  result = node.readInputRegisters(0x0001, 1);
+  if (result == node.ku8MBSuccess) {
+    *temp = node.getResponseBuffer(0) / 10.0;
+  }
+
+  // Read NPK (registers 0x0002-0x0004)
+  result = node.readInputRegisters(0x0002, 3);
+  if (result == node.ku8MBSuccess) {
+    npk[0] = node.getResponseBuffer(0);  // N
+    npk[1] = node.getResponseBuffer(1);  // P
+    npk[2] = node.getResponseBuffer(2);  // K
+  }
+
+  digitalWrite(MAX485_DE_RE, LOW);
+  delay(10);
+}
