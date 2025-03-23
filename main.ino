@@ -92,3 +92,30 @@ void readModbusSensor(float *ph, float *temp, float *npk) {
   digitalWrite(MAX485_DE_RE, LOW);
   delay(10);
 }
+
+void readGPSData() {
+  while (gpsSerial.available() > 0) {
+    gps.encode(gpsSerial.read());
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  // Initialize BLE
+  BLEDevice::init("SoilHealthMonitor");
+  pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new ServerCallbacks());
+  pService = pServer->createService(SERVICE_UUID);
+  
+  pDataCharacteristic = pService->createCharacteristic(
+                      DATA_UUID,
+                      BLECharacteristic::PROPERTY_READ |
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
+  
+  pService->start();
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->start();
