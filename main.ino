@@ -40,3 +40,16 @@ void powerOnGPS() {
   gpsSerial.println("AT+CGNSURC=2");  // Set update rate to 1Hz
   delay(200);
 }
+
+String prepareJSON(float ph, float temp, float n, float p, float k, 
+  float moisture, float salinity) {
+DynamicJsonDocument doc(512);
+
+doc["ph"] = ph;
+doc["temperature"] = temp;
+doc["nitrogen"] = n;
+doc["phosphorus"] = p;
+doc["potassium"] = k;
+doc["moisture"] = moisture;
+doc["salinity"] = salinity;
+
