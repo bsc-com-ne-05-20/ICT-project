@@ -1,6 +1,6 @@
 import requests
 
-class ChatGPTSoilHealth:
+class Farmer_AgriGpt:
     def __init__(self, api_key):
         self.api_key = api_key
         self.base_url = "https://api.openai.com/v1/chat/completions"
@@ -37,7 +37,7 @@ class ChatGPTSoilHealth:
 
 if __name__ == "__main__":
     api_key = "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"  # <- put your OpenAI API key here
-    agrigpt = ChatGPTSoilHealth(api_key)
+    agrigpt =Farmer_AgriGpt(api_key)
 
     while True:
         question = input("Ask about soil health: ")
