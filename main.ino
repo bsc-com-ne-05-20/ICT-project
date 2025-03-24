@@ -125,3 +125,7 @@ void setup() {
   digitalWrite(MAX485_DE_RE, LOW);
   Serial2.begin(RS485_BAUD, SERIAL_8N1, 16, 17);
   node.begin(1, Serial2);
+
+  // Initialize GPS
+  gpsSerial.begin(GPS_BAUD, SERIAL_8N1, 18, 19);
+  powerOnGPS();
