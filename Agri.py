@@ -12,7 +12,7 @@ class Farmer_AgriGpt:
         }
 
         payload = {
-            "model": "gpt-3.5-turbo",  # or "gpt-3.5-turbo" if gpt-4 not available
+            "model": "gpt-3.5-turbo", 
             "messages": [
                 {
                     "role": "system",
