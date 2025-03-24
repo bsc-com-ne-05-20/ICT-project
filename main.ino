@@ -119,3 +119,9 @@ void setup() {
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
   pAdvertising->start();
+
+  // Initialize RS485
+  pinMode(MAX485_DE_RE, OUTPUT);
+  digitalWrite(MAX485_DE_RE, LOW);
+  Serial2.begin(RS485_BAUD, SERIAL_8N1, 16, 17);
+  node.begin(1, Serial2);
