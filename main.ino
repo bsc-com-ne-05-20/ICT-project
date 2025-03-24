@@ -135,3 +135,25 @@ void setup() {
   pinMode(SALINITY_PIN, INPUT);
 }
 
+void loop() {
+  static uint32_t lastSend = 0;
+  
+  if (millis() - lastSend >= 10000) {  // Send every 10 seconds
+    lastSend = millis();
+    
+    if (deviceConnected) {  // Only send when connected
+      float ph, temp, npk[3];
+      readModbusSensor(&ph, &temp, npk);
+      
+      float moisture = analogRead(MOISTURE_PIN);
+      float salinity = analogRead(SALINITY_PIN);
+      readGPSData();
+
+      String jsonData = prepareJSON(ph, temp, npk[0], npk[1], npk[2], 
+                                  moisture, salinity);
+      
+      pDataCharacteristic->setValue(jsonData.c_str());
+      pDataCharacteristic->notify();
+    }
+  }
+}
