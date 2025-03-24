@@ -36,7 +36,7 @@ class Farmer_AgriGpt:
 
 
 if __name__ == "__main__":
-    api_key = "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"  # <- put your OpenAI API key here
+    api_key = "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"
     agrigpt =Farmer_AgriGpt(api_key)
 
     while True:
