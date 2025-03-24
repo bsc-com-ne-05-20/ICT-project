@@ -129,3 +129,9 @@ void setup() {
   // Initialize GPS
   gpsSerial.begin(GPS_BAUD, SERIAL_8N1, 18, 19);
   powerOnGPS();
+
+  // Initialize Analog Sensors
+  pinMode(MOISTURE_PIN, INPUT);
+  pinMode(SALINITY_PIN, INPUT);
+}
+
