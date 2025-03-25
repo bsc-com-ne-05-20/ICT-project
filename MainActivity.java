@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -30,6 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import android.widget.ScrollView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -39,9 +43,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
     private TextView textViewAverages;
     private Switch switchTestMode;
     private View buttonUploadData;
+    private ScrollView scrollView;
     private CheckBox checkBoxIncludeCoordinates;
 
     // BLE
@@ -73,6 +81,11 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
     // Test mode
     private BluetoothTestSimulator bluetoothTestSimulator;
     private boolean isTestMode = false;
+    private EditText etPersonId;
+    private UnifiedDatabaseManager dbManager;
+
+
+
 
     // Data processor
     private final DataProcessor dataProcessor = new DataProcessor();
@@ -91,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
+        // In MainActivity's onCreate()
+
+        etPersonId = findViewById(R.id.etPersonId);
+        dbManager = new UnifiedDatabaseManager(this);
 
         // Initialize UI Components
         buttonConnectDisconnect = findViewById(R.id.buttonConnectDisconnect);
@@ -100,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
         tableLayout = findViewById(R.id.tableLayout);
         textViewAverages = findViewById(R.id.textViewAverages);
         switchTestMode = findViewById(R.id.switchTestMode);
+        scrollView = findViewById(R.id.scrollView);
 
         // Initialize Bluetooth Adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -366,6 +384,38 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
             float potassium = (float) jsonData.getDouble("potassium");
             float moisture = (float) jsonData.getDouble("moisture");
             float salinity = (float) jsonData.getDouble("salinity");
+           // String personId = jsonData.optString("person_id", "default_id");
+            String personId = etPersonId.getText().toString().trim();
+            if (personId.isEmpty()) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Please enter Location/Person ID", Toast.LENGTH_LONG).show();
+                    etPersonId.requestFocus();
+                });
+                return;
+            }
+
+            // Create timestamp
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            String timestamp = sdf.format(new Date());
+
+
+
+            // Create SoilData object
+            SoilData data = new SoilData(temperature, salinity, ph, moisture,
+                    nitrogen, phosphorus, potassium, personId);
+            data.setTimestamp(timestamp);
+
+            // Save to both databases
+            saveToBothDatabases(data);
+
+            // Update UI
+            updateUI(data);
+
+            // Save to local database
+            UnifiedDatabaseManager dbManager = new UnifiedDatabaseManager(this);
+            dbManager.addSoilData(data);
+            dbManager.close();
+
 
             String npk = nitrogen + "-" + phosphorus + "-" + potassium;
             dataProcessor.addData(temperature, (int) salinity, ph, (int) moisture, npk);
@@ -383,9 +433,45 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
             Log.e("MainActivity", "Error parsing JSON data", e);
         }
     }
+    private void saveToBothDatabases(SoilData data) {
+        try {
+            // Save to Firebase Realtime Database
+            DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("soil_readings");
+            String firebaseKey = firebaseRef.push().getKey();
+            if (firebaseKey != null) {
+                firebaseRef.child(firebaseKey).setValue(data)
+                        .addOnSuccessListener(aVoid -> Log.d("Firebase", "Data saved successfully"))
+                        .addOnFailureListener(e -> Log.e("Firebase", "Failed to save data", e));
+            }
+
+            // Save to SQLite
+            dbManager.addSoilData(data);
+
+            // Keep existing SQLite helper if needed
+        } catch (Exception e) {
+            Log.e("Database", "Error saving data", e);
+        }
+    }
+    private void updateUI(SoilData data) {
+        runOnUiThread(() -> {
+            String npk = data.getNitrogen() + "-" + data.getPhosphorus() + "-" + data.getPotassium();
+
+            TableRow row = new TableRow(this);
+            // Add person ID as first column
+            row.addView(createTextView(data.getPersonId()));
+            row.addView(createTextView(String.valueOf(data.getTemperature())));
+            row.addView(createTextView(String.valueOf((int) data.getSalinity())));
+            row.addView(createTextView(String.valueOf(data.getPh())));
+            row.addView(createTextView(String.valueOf((int) data.getMoisture())));
+            row.addView(createTextView(npk));
+            tableLayout.addView(row);
+
+            // Scroll to bottom
+            scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+        });
+    }
     @Override
     public void onTestDataReceived(String data) {
-        // Process test data the same way as BLE data
         Log.d("MainActivity", "Received test data: " + data);
         runOnUiThread(() -> {
             try {
@@ -398,16 +484,36 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
                 int moisture = jsonData.getInt("moisture");
                 int salinity = jsonData.getInt("salinity");
 
+                String personId = "test"; // Default value
+                if (etPersonId != null && etPersonId.getText() != null) {
+                    String inputId = etPersonId.getText().toString().trim();
+                    if (!inputId.isEmpty()) {
+                        personId = inputId;
+                    }
+                }
+
+                // Create SoilData object for test data
+                SoilData testData = new SoilData(temperature, salinity, ph, moisture,
+                        nitrogen, phosphorus, potassium, personId);
+                testData.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        .format(new Date()));
+
+                // Save test data
+                saveToBothDatabases(testData);
+
+                // Update UI
                 String npk = nitrogen + "-" + phosphorus + "-" + potassium;
                 dataProcessor.addData(temperature, salinity, ph, moisture, npk);
 
                 TableRow row = new TableRow(this);
+                row.addView(createTextView(personId));
                 row.addView(createTextView(String.valueOf(temperature)));
                 row.addView(createTextView(String.valueOf(salinity)));
                 row.addView(createTextView(String.valueOf(ph)));
                 row.addView(createTextView(String.valueOf(moisture)));
                 row.addView(createTextView(npk));
                 tableLayout.addView(row);
+
             } catch (JSONException e) {
                 Log.e("MainActivity", "Error processing test data", e);
             }
@@ -417,7 +523,67 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
     @Override
     public void onDataReceived(String data) {
         Log.d("MainActivity", "Received arduino data: " + data);
-        processReceivedData(data);
+        runOnUiThread(() -> {
+            try {
+                JSONObject jsonData = new JSONObject(data);
+
+                // Parse data with error checking
+                float ph = (float) jsonData.optDouble("ph", 0);
+                float temperature = (float) jsonData.optDouble("temperature", 0);
+                float nitrogen = (float) jsonData.optDouble("nitrogen", 0);
+                float phosphorus = (float) jsonData.optDouble("phosphorus", 0);
+                float potassium = (float) jsonData.optDouble("potassium", 0);
+                float moisture = (float) jsonData.optDouble("moisture", 0);
+                float salinity = (float) jsonData.optDouble("salinity", 0);
+
+                // Validate person ID
+                String personId = etPersonId.getText().toString().trim();
+                if (personId.isEmpty()) {
+                    Toast.makeText(this, "Please enter Location/Person ID", Toast.LENGTH_LONG).show();
+                    etPersonId.requestFocus();
+                    return;
+                }
+
+                // Create SoilData object
+                SoilData sensorData = new SoilData(
+                        temperature, salinity, ph, moisture,
+                        nitrogen, phosphorus, potassium, personId
+                );
+                sensorData.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        .format(new Date()));
+
+                // Save and update UI
+                saveToBothDatabases(sensorData);
+                updateDataDisplay(sensorData);
+
+                // Add to data processor
+                String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
+                        nitrogen, phosphorus, potassium);
+                dataProcessor.addData(temperature, salinity, ph, moisture, npk);
+
+            } catch (JSONException e) {
+                Log.e("MainActivity", "Error parsing Arduino JSON data", e);
+                Toast.makeText(this, "Invalid data format from Arduino", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e("MainActivity", "Unexpected error processing Arduino data", e);
+            }
+        });
+    }
+
+    private void updateDataDisplay(SoilData data) {
+        String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
+                data.getNitrogen(), data.getPhosphorus(), data.getPotassium());
+
+        TableRow row = new TableRow(this);
+        row.addView(createTextView(data.getPersonId()));
+        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getTemperature())));
+        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getSalinity())));
+        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getPh())));
+        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getMoisture())));
+        row.addView(createTextView(npk));
+        tableLayout.addView(row);
+
+        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
     }
 
     @SuppressLint("MissingPermission")
@@ -456,19 +622,123 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
     }
 
     private void calculateAverages() {
-        float averageTemperature = dataProcessor.getAverageTemperature();
-        float averageSalinity = dataProcessor.getAverageSalinity();
-        float averagePh = dataProcessor.getAveragepH();
-        float averageMoisture = dataProcessor.getAverageMoisture();
-        String averageNPK = dataProcessor.getAverageNPK();
+        // Get data from both sources
+        List<SoilData> allData = new ArrayList<>();
 
-        runOnUiThread(() -> textViewAverages.setText(
-                "Average Temperature: " + averageTemperature + "\n" +
-                        "Average Salinity: " + averageSalinity + "\n" +
-                        "Average pH: " + averagePh + "\n" +
-                        "Average Moisture: " + averageMoisture + "\n" +
-                        "Average NPK: " + averageNPK
-        ));
+        // 1. Get data from DataProcessor (BLE data)
+        if (dataProcessor.hasData()) {
+            SoilData bleData = new SoilData(
+                    dataProcessor.getAverageTemperature(),
+                    dataProcessor.getAverageSalinity(),
+                    dataProcessor.getAveragepH(),
+                    dataProcessor.getAverageMoisture(),
+                    parseNitrogen(dataProcessor.getAverageNPK()),
+                    parsePhosphorus(dataProcessor.getAverageNPK()),
+                    parsePotassium(dataProcessor.getAverageNPK()),
+                    "BLE_DATA"
+            );
+            allData.add(bleData);
+        }
+
+        // 2. Get data from local database
+        List<SoilData> dbData = dbManager.getAllSoilData();
+        allData.addAll(dbData);
+
+        if (allData.isEmpty()) {
+            runOnUiThread(() ->
+                    Toast.makeText(this, "No data available to calculate averages", Toast.LENGTH_SHORT).show()
+            );
+            return;
+        }
+
+        // Calculate sums
+        float avgTemp = 0, avgSalinity = 0, avgPh = 0, avgMoisture = 0;
+        float avgNitrogen = 0, avgPhosphorus = 0, avgPotassium = 0;
+
+        for (SoilData data : allData) {
+            avgTemp += data.getTemperature();
+            avgSalinity += data.getSalinity();
+            avgPh += data.getPh();
+            avgMoisture += data.getMoisture();
+            avgNitrogen += data.getNitrogen();
+            avgPhosphorus += data.getPhosphorus();
+            avgPotassium += data.getPotassium();
+        }
+
+        int count = allData.size();
+
+        // Create final averages for use in lambda
+        final float finalAvgTemp = avgTemp / count;
+        final float finalAvgSalinity = avgSalinity / count;
+        final float finalAvgPh = avgPh / count;
+        final float finalAvgMoisture = avgMoisture / count;
+        final float finalAvgNitrogen = avgNitrogen / count;
+        final float finalAvgPhosphorus = avgPhosphorus / count;
+        final float finalAvgPotassium = avgPotassium / count;
+
+        // Create timestamp
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                .format(new Date());
+
+        // Create average record
+        SoilData averageData = new SoilData(
+                finalAvgTemp, finalAvgSalinity, finalAvgPh, finalAvgMoisture,
+                finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium,
+                "AVERAGES_" + timestamp
+        );
+        averageData.setTimestamp(timestamp);
+
+        // Save to database
+        dbManager.addSoilData(averageData);
+
+        // Update UI
+        runOnUiThread(() -> {
+            textViewAverages.setText(
+                    "Average Temperature: " + String.format("%.1f", finalAvgTemp) + "°C\n" +
+                            "Average Salinity: " + String.format("%.1f", finalAvgSalinity) + "\n" +
+                            "Average pH: " + String.format("%.1f", finalAvgPh) + "\n" +
+                            "Average Moisture: " + String.format("%.1f", finalAvgMoisture) + "\n" +
+                            "Average NPK: " + String.format("%.1f-%.1f-%.1f",
+                            finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium)
+            );
+
+            TableRow row = new TableRow(this);
+            row.addView(createTextView("AVG: " + timestamp));
+            row.addView(createTextView(String.format("%.1f", finalAvgTemp)));
+            row.addView(createTextView(String.format("%.1f", finalAvgSalinity)));
+            row.addView(createTextView(String.format("%.1f", finalAvgPh)));
+            row.addView(createTextView(String.format("%.1f", finalAvgMoisture)));
+            row.addView(createTextView(String.format("%.1f-%.1f-%.1f",
+                    finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium)));
+            tableLayout.addView(row);
+
+            Toast.makeText(this, "Averages calculated and saved", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    // Helper methods to parse NPK values
+    private float parseNitrogen(String npk) {
+        try {
+            return Float.parseFloat(npk.split("-")[0]);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private float parsePhosphorus(String npk) {
+        try {
+            return Float.parseFloat(npk.split("-")[1]);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private float parsePotassium(String npk) {
+        try {
+            return Float.parseFloat(npk.split("-")[2]);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void clearData() {
