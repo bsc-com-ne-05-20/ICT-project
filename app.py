@@ -1,7 +1,10 @@
 import os
 from flask import Flask, request, jsonify
 import requests
+from dotenv import load_dotenv
+load_dotenv()
 
+api_key =""
 app = Flask(__name__)
 
 class Farmer_AgriGpt:
