@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "399729871782",
+    "project_id": "ssms-project-app",
+    "storage_bucket": "ssms-project-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:399729871782:android:ecf2f62c18a93c30151d67",
+        "android_client_info": {
+          "package_name": "com.example.ssmsprojectapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5ndNw3d7qOOl_8kw2jVILtawDL4lbhlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
