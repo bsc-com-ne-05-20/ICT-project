@@ -7,6 +7,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -33,6 +34,8 @@ public class Login2 extends AppCompatActivity {
 
     private Button signin;
 
+    private ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +48,8 @@ public class Login2 extends AppCompatActivity {
         });
 
         //init components and firebase
+
+        progressBar = findViewById(R.id.progress);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -68,6 +73,7 @@ public class Login2 extends AppCompatActivity {
 
        if (!emailUser.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(emailUser).matches()){
            if (!pass.isEmpty()){
+               progressBar.setVisibility(View.VISIBLE);
                firebaseAuth.signInWithEmailAndPassword(emailUser,pass).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                    @Override
                    public void onSuccess(AuthResult authResult) {
@@ -77,6 +83,8 @@ public class Login2 extends AppCompatActivity {
                }).addOnFailureListener(new OnFailureListener() {
                    @Override
                    public void onFailure(@NonNull Exception e) {
+
+                       progressBar.setVisibility(View.GONE);
 
                        Toast.makeText(Login2.this, "Login failed please try again", Toast.LENGTH_SHORT).show();
                    }

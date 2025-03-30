@@ -61,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
+                android:maxLines="1"
                 android:hint="email" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,6 +83,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 android:textColorHint="@color/black"
+                android:maxLines="1"
                 android:hint="password" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -108,7 +110,13 @@
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
-
+<ProgressBar
+    android:id="@+id/progress"
+    android:progressTint="@color/yellow"
+    android:layout_margin="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:visibility="gone"/>
 
     <Button
         android:id="@+id/signin_button"

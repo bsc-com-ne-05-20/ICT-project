@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,11 +24,18 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HomePage extends AppCompatActivity {
 
     private FloatingActionButton fab;
     private BottomNavigationView bottomNavigationView;
+
+    //database
+    private FirebaseFirestore database;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -39,6 +48,10 @@ public class HomePage extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        //init all database stuff
+        database = FirebaseFirestore.getInstance();
+
 
         //init components
 
@@ -71,7 +84,7 @@ public class HomePage extends AppCompatActivity {
         badgeDrawable2.setNumber(202);
         badgeDrawable2.setVisible(true);
 
-        BadgeDrawable badgeDrawable3 = bottomNavigationView.getOrCreateBadge(R.id.reports);
+        BadgeDrawable badgeDrawable3 = bottomNavigationView.getOrCreateBadge(R.id.account);
         badgeDrawable3.setNumber(1);
         badgeDrawable3.setVisible(true);
     }
@@ -86,10 +99,76 @@ public class HomePage extends AppCompatActivity {
 
         //init the layout components here
 
+        CheckBox take_coordinates = dialog.findViewById(R.id.take_coordinates);
+
+        Button proceed = dialog.findViewById(R.id.proceed_button);
+        proceed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //more logic to follow
+                if (take_coordinates.isChecked()){
+                    startActivity(new Intent(HomePage.this, TakeCoordinates.class));
+                }
+                else {
+                    startActivity(new Intent(HomePage.this, MeasurementsPage.class));
+                }
+            }
+        });
+        Button cancel = dialog.findViewById(R.id.cancel_button);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+
         dialog.show();
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.dialoganimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    //database methods
+
+    public void write2Firestore(FirebaseFirestore db){
+        Map<String, Object> farm = new HashMap<>();
+        farm.put("owner", "John Doe");
+        farm.put("location", "Lilongwe, Malawi");
+        farm.put("soilPH", 6.5);
+
+        db.collection("farms").document("Farm1")
+                .set(farm)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data added"))
+                .addOnFailureListener(e -> Log.e("Firestore", "Error adding data", e));
+
+    }
+
+    public void readData(FirebaseFirestore db){
+        db.collection("farms").document("Farm1")
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String owner = document.getString("owner");
+                        Log.d("Firestore", "Owner: " + owner);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error fetching data", e));
+
+    }
+
+    public void updateData(FirebaseFirestore db){
+        db.collection("farms").document("Farm1")
+                .update("soilPH", 7.2)
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data updated"));
+
+    }
+
+    public void deleteData(FirebaseFirestore db){
+        db.collection("farms").document("Farm1")
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data deleted"));
+
     }
 }
