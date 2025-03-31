@@ -3,100 +3,59 @@ package com.example.soilhealthy;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.Switch;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import android.widget.ScrollView;
-
+import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FieldValue;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class MainActivity extends AppCompatActivity implements DataReceiver
-, BluetoothTestSimulator.TestDataListener{
-
+public class MainActivity extends AppCompatActivity implements BluetoothHandler.BluetoothCallback, DataReceiver {
     // UI Components
     private Button buttonConnectDisconnect, buttonCalculateAverages, buttonClearData;
     private TableLayout tableLayout;
-    private TextView textViewAverages;
-    private Switch switchTestMode;
+    private TextView textViewAverages, textViewConnectionStatus;
     private View buttonUploadData;
     private ScrollView scrollView;
     private CheckBox checkBoxIncludeCoordinates;
-
-    // BLE
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothLeScanner bleScanner;
-    private BluetoothGatt bluetoothGatt;
-    private BluetoothDevice bluetoothDevice;
-
-    // BLE UUIDs (must match Arduino code)
-    private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
-    private static final UUID DATA_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
-
-    // Permissions
-    private static final int REQUEST_ENABLE_BT = 1;
-    private static final int REQUEST_PERMISSIONS = 2;
-
-    // Test mode
-    private BluetoothTestSimulator bluetoothTestSimulator;
-    private boolean isTestMode = false;
     private EditText etPersonId;
+    private ProgressBar progressBar;
+
+    // Bluetooth
+    private BluetoothHandler bluetoothHandler;
+    private List<BluetoothDevice> discoveredDevices = new ArrayList<>();
+    private ArrayAdapter<String> devicesAdapter;
+    private AlertDialog deviceSelectionDialog;
+    private BluetoothDevice lastConnectedDevice;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private int retryCount = 0;
+
+    // Database
     private UnifiedDatabaseManager dbManager;
-
-
-
-
-    // Data processor
     private final DataProcessor dataProcessor = new DataProcessor();
 
-    // Connection state
-    private volatile boolean isConnected = false;
-    private final Handler handler = new Handler();
-
-    // BLE Scan
-    private boolean isScanning = false;
-    private static final long SCAN_PERIOD = 10000;
+    private static final int PERMISSION_REQUEST_BLUETOOTH = 1;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -104,52 +63,41 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
-        // In MainActivity's onCreate()
 
+        initializeViews();
+        setupBluetooth();
+        setupButtonListeners();
+    }
+
+    private void initializeViews() {
         etPersonId = findViewById(R.id.etPersonId);
-        dbManager = new UnifiedDatabaseManager(this);
-
-        // Initialize UI Components
         buttonConnectDisconnect = findViewById(R.id.buttonConnectDisconnect);
         buttonCalculateAverages = findViewById(R.id.buttonCalculateAverages);
         buttonClearData = findViewById(R.id.buttonClearData);
         buttonUploadData = findViewById(R.id.buttonUploadData);
         tableLayout = findViewById(R.id.tableLayout);
         textViewAverages = findViewById(R.id.textViewAverages);
-        switchTestMode = findViewById(R.id.switchTestMode);
+        textViewConnectionStatus = findViewById(R.id.textViewConnectionStatus);
         scrollView = findViewById(R.id.scrollView);
+        checkBoxIncludeCoordinates = findViewById(R.id.checkBoxIncludeCoordinates);
+        progressBar = findViewById(R.id.progressBar);
+        dbManager = new UnifiedDatabaseManager(this);
+    }
 
-        // Initialize Bluetooth Adapter
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+    private void setupBluetooth() {
+        bluetoothHandler = new BluetoothHandler(this, this);
+    }
 
-        bluetoothTestSimulator = new BluetoothTestSimulator(this);
-        checkAndRequestPermissions();
-
-        switchTestMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isTestMode = isChecked;
-            Log.d("TEST_MODE", "Test mode: " + isChecked);
-            if (isTestMode) {
-                Toast.makeText(this, "Test Mode Enabled", Toast.LENGTH_SHORT).show();
-                if (isConnected) disconnectBLE();
-            } else {
-                Toast.makeText(this, "BLE Mode Enabled", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+    private void setupButtonListeners() {
         buttonConnectDisconnect.setOnClickListener(v -> {
-            if (isConnected) {
-                disconnectBLE();
+            if (bluetoothHandler.isConnected()) {
+                bluetoothHandler.disconnectBLE();
+                retryCount = 0; // Reset retry counter on manual disconnect
             } else {
-                if (isTestMode) {
-                    bluetoothTestSimulator.startTest();
-                    isConnected = true;
-                    buttonConnectDisconnect.setText("Disconnect");
+                if (checkBluetoothPermissions()) {
+                    startBluetoothOperation();
                 } else {
-                    checkPermissionsAndStartScan();
+                    requestBluetoothPermissions();
                 }
             }
         });
@@ -159,623 +107,397 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
         buttonUploadData.setOnClickListener(v -> showUploadDataDialog());
     }
 
-    private void checkAndRequestPermissions() {
-        List<String> permissionsNeeded = new ArrayList<>();
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.BLUETOOTH);
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
-            permissionsNeeded.add(Manifest.permission.BLUETOOTH_ADMIN);
-        }
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-        }
-
+    private boolean checkBluetoothPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.BLUETOOTH_SCAN);
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.BLUETOOTH_CONNECT);
-            }
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         }
+    }
 
-        if (!permissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), REQUEST_PERMISSIONS);
+    private void requestBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    }, PERMISSION_REQUEST_BLUETOOTH);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_BLUETOOTH);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS) {
-            boolean allGranted = true;
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    allGranted = false;
-                    break;
-                }
-            }
-
-            if (allGranted && !isConnected && !isTestMode) {
-                checkPermissionsAndStartScan();
-            } else if (!allGranted) {
-                Toast.makeText(this, "Permissions required for BLE functionality", Toast.LENGTH_SHORT).show();
+        if (requestCode == PERMISSION_REQUEST_BLUETOOTH) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startBluetoothOperation();
+            } else {
+                showToast("Bluetooth permissions are required");
             }
         }
     }
 
-    private void checkPermissionsAndStartScan() {
-        if (hasRequiredPermissions()) {
-            scanLeDevice();
+    private void startBluetoothOperation() {
+        if (bluetoothHandler.isBluetoothEnabled()) {
+            showDeviceSelectionDialog();
         } else {
-            checkAndRequestPermissions();
+            bluetoothHandler.requestEnableBluetooth(this);
         }
     }
 
-    private boolean hasRequiredPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @SuppressLint("MissingPermission")
-    private void scanLeDevice() {
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            return;
-        }
-
-        if (bleScanner == null) {
-            bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-        }
-
-        if (isScanning) {
-            stopBleScan();
-            return;
-        }
-
-        Toast.makeText(this, "Scanning for BLE devices...", Toast.LENGTH_SHORT).show();
-        isScanning = true;
-        buttonConnectDisconnect.setText("Stop Scan");
-
-        handler.postDelayed(() -> {
-            if (isScanning) {
-                stopBleScan();
-                Toast.makeText(this, "Scan completed", Toast.LENGTH_SHORT).show();
-            }
-        }, SCAN_PERIOD);
-
-        bleScanner.startScan(scanCallback);
-    }
-
-    @SuppressLint("MissingPermission")
-    private void stopBleScan() {
-        if (bleScanner != null && isScanning) {
-            bleScanner.stopScan(scanCallback);
-            isScanning = false;
-            buttonConnectDisconnect.setText("Connect");
-        }
-    }
-
-    private final ScanCallback scanCallback = new ScanCallback() {
-        @SuppressLint("MissingPermission")
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            BluetoothDevice device = result.getDevice();
-            String deviceName = device.getName();
-
-            if (deviceName != null && deviceName.equals("SoilHealthMonitor")) {
-                stopBleScan();
-                bluetoothDevice = device;
-                connectToDevice(device);
-            }
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Log.e("MainActivity", "BLE Scan failed with error code: " + errorCode);
-            Toast.makeText(MainActivity.this, "Scan failed", Toast.LENGTH_SHORT).show();
-            isScanning = false;
-            buttonConnectDisconnect.setText("Connect");
-        }
-    };
-
-    @SuppressLint("MissingPermission")
-    private void connectToDevice(BluetoothDevice device) {
-        Toast.makeText(this, "Connecting to " + device.getName(), Toast.LENGTH_SHORT).show();
-        bluetoothGatt = device.connectGatt(this, false, gattCallback);
-    }
-
-    private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                isConnected = true;
-                runOnUiThread(() -> {
-                    buttonConnectDisconnect.setText("Disconnect");
-                    Toast.makeText(MainActivity.this, "Connected to device", Toast.LENGTH_SHORT).show();
-                });
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSIONS);
-                        return;
-                    }
-                }
-                gatt.discoverServices();
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                isConnected = false;
-                runOnUiThread(() -> {
-                    buttonConnectDisconnect.setText("Connect");
-                    Toast.makeText(MainActivity.this, "Disconnected from device", Toast.LENGTH_SHORT).show();
-                });
-                closeGatt();
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                BluetoothGattService service = gatt.getService(SERVICE_UUID);
-                if (service != null) {
-                    BluetoothGattCharacteristic dataCharacteristic = service.getCharacteristic(DATA_UUID);
-                    if (dataCharacteristic != null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSIONS);
-                                return;
-                            }
-                        }
-
-                        gatt.setCharacteristicNotification(dataCharacteristic, true);
-                        BluetoothGattDescriptor descriptor = dataCharacteristic.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
-                        if (descriptor != null) {
-                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                            gatt.writeDescriptor(descriptor);
-                        }
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if (characteristic.getUuid().equals(DATA_UUID)) {
-                byte[] data = characteristic.getValue();
-                String jsonString = new String(data, StandardCharsets.UTF_8);
-                processReceivedData(jsonString);
-            }
-        }
-    };
-
-
-    public void processReceivedData(String jsonString) {
-        try {
-            JSONObject jsonData = new JSONObject(jsonString);
-            float ph = (float) jsonData.getDouble("ph");
-            float temperature = (float) jsonData.getDouble("temperature");
-            float nitrogen = (float) jsonData.getDouble("nitrogen");
-            float phosphorus = (float) jsonData.getDouble("phosphorus");
-            float potassium = (float) jsonData.getDouble("potassium");
-            float moisture = (float) jsonData.getDouble("moisture");
-            float salinity = (float) jsonData.getDouble("salinity");
-           // String personId = jsonData.optString("person_id", "default_id");
-            String personId = etPersonId.getText().toString().trim();
-            if (personId.isEmpty()) {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Please enter Location/Person ID", Toast.LENGTH_LONG).show();
-                    etPersonId.requestFocus();
-                });
-                return;
-            }
-
-            // Create timestamp
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            String timestamp = sdf.format(new Date());
-
-
-
-            // Create SoilData object
-            SoilData data = new SoilData(temperature, salinity, ph, moisture,
-                    nitrogen, phosphorus, potassium, personId);
-            data.setTimestamp(timestamp);
-
-            // Save to both databases
-            saveToBothDatabases(data);
-
-            // Update UI
-            updateUI(data);
-
-            // Save to local database
-            UnifiedDatabaseManager dbManager = new UnifiedDatabaseManager(this);
-            dbManager.addSoilData(data);
-            dbManager.close();
-
-
-            String npk = nitrogen + "-" + phosphorus + "-" + potassium;
-            dataProcessor.addData(temperature, (int) salinity, ph, (int) moisture, npk);
-
-            runOnUiThread(() -> {
-                TableRow row = new TableRow(MainActivity.this);
-                row.addView(createTextView(String.valueOf(temperature)));
-                row.addView(createTextView(String.valueOf((int) salinity)));
-                row.addView(createTextView(String.valueOf(ph)));
-                row.addView(createTextView(String.valueOf((int) moisture)));
-                row.addView(createTextView(npk));
-                tableLayout.addView(row);
-            });
-        } catch (JSONException e) {
-            Log.e("MainActivity", "Error parsing JSON data", e);
-        }
-    }
-    private void saveToBothDatabases(SoilData data) {
-        try {
-            // Save to Firebase Realtime Database
-            DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("soil_readings");
-            String firebaseKey = firebaseRef.push().getKey();
-            if (firebaseKey != null) {
-                firebaseRef.child(firebaseKey).setValue(data)
-                        .addOnSuccessListener(aVoid -> Log.d("Firebase", "Data saved successfully"))
-                        .addOnFailureListener(e -> Log.e("Firebase", "Failed to save data", e));
-            }
-
-            // Save to SQLite
-            dbManager.addSoilData(data);
-
-            // Keep existing SQLite helper if needed
-        } catch (Exception e) {
-            Log.e("Database", "Error saving data", e);
-        }
-    }
-    private void updateUI(SoilData data) {
+    // BluetoothCallback implementations
+    @Override
+    public void onDeviceDiscovered(BluetoothDevice device, int rssi) {
         runOnUiThread(() -> {
-            String npk = data.getNitrogen() + "-" + data.getPhosphorus() + "-" + data.getPotassium();
-
-            TableRow row = new TableRow(this);
-            // Add person ID as first column
-            row.addView(createTextView(data.getPersonId()));
-            row.addView(createTextView(String.valueOf(data.getTemperature())));
-            row.addView(createTextView(String.valueOf((int) data.getSalinity())));
-            row.addView(createTextView(String.valueOf(data.getPh())));
-            row.addView(createTextView(String.valueOf((int) data.getMoisture())));
-            row.addView(createTextView(npk));
-            tableLayout.addView(row);
-
-            // Scroll to bottom
-            scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+            if (!containsDevice(discoveredDevices, device)) {
+                discoveredDevices.add(device);
+                if (devicesAdapter != null) {
+                    String deviceName = getDeviceNameWithPermissionCheck(device);
+                    devicesAdapter.add(deviceName + "\n" + device.getAddress() + " (RSSI: " + rssi + "dBm)");
+                    devicesAdapter.notifyDataSetChanged();
+                }
+            }
         });
     }
-    @Override
-    public void onTestDataReceived(String data) {
-        Log.d("MainActivity", "Received test data: " + data);
-        runOnUiThread(() -> {
-            try {
-                JSONObject jsonData = new JSONObject(data);
-                float ph = (float) jsonData.getDouble("ph");
-                float temperature = (float) jsonData.getDouble("temperature");
-                int nitrogen = jsonData.getInt("nitrogen");
-                int phosphorus = jsonData.getInt("phosphorus");
-                int potassium = jsonData.getInt("potassium");
-                int moisture = jsonData.getInt("moisture");
-                int salinity = jsonData.getInt("salinity");
 
-                String personId = "test"; // Default value
-                if (etPersonId != null && etPersonId.getText() != null) {
-                    String inputId = etPersonId.getText().toString().trim();
-                    if (!inputId.isEmpty()) {
-                        personId = inputId;
-                    }
-                }
-
-                // Create SoilData object for test data
-                SoilData testData = new SoilData(temperature, salinity, ph, moisture,
-                        nitrogen, phosphorus, potassium, personId);
-                testData.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                        .format(new Date()));
-
-                // Save test data
-                saveToBothDatabases(testData);
-
-                // Update UI
-                String npk = nitrogen + "-" + phosphorus + "-" + potassium;
-                dataProcessor.addData(temperature, salinity, ph, moisture, npk);
-
-                TableRow row = new TableRow(this);
-                row.addView(createTextView(personId));
-                row.addView(createTextView(String.valueOf(temperature)));
-                row.addView(createTextView(String.valueOf(salinity)));
-                row.addView(createTextView(String.valueOf(ph)));
-                row.addView(createTextView(String.valueOf(moisture)));
-                row.addView(createTextView(npk));
-                tableLayout.addView(row);
-
-            } catch (JSONException e) {
-                Log.e("MainActivity", "Error processing test data", e);
+    @SuppressLint("MissingPermission")
+    private String getDeviceNameWithPermissionCheck(BluetoothDevice device) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return "Unknown Device";
             }
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return "Unknown Device";
+            }
+        }
+
+        try {
+            return device.getName() != null ? device.getName() : "Unknown Device";
+        } catch (SecurityException e) {
+            Log.e("Bluetooth", "Permission denied while getting device name", e);
+            return "Unknown Device";
+        }
+    }
+
+    @Override
+    public void onConnectionStateChanged(boolean connected, String message) {
+        runOnUiThread(() -> {
+            buttonConnectDisconnect.setText(connected ? "DISCONNECT" : "CONNECT");
+            textViewConnectionStatus.setText(message);
+            textViewConnectionStatus.setTextColor(connected ? Color.GREEN : Color.RED);
+            progressBar.setVisibility(View.GONE);
+
+            if (connected) {
+                retryCount = 0; // Reset retry counter on successful connection
+                handler.removeCallbacksAndMessages(null); // Cancel any pending retries
+            } else {
+                // Only attempt reconnect if this was an unexpected disconnect
+                if (retryCount < MAX_RETRY_ATTEMPTS) {
+                    retryCount++;
+                    progressBar.setVisibility(View.VISIBLE);
+                    handler.postDelayed(() -> {
+                        if (!bluetoothHandler.isConnected() && lastConnectedDevice != null) {
+                            bluetoothHandler.connectToDevice(lastConnectedDevice);
+                        }
+                    }, 2000); // 2 second delay before reconnect attempt
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+
+            showToast(message);
         });
     }
 
     @Override
     public void onDataReceived(String data) {
-        Log.d("MainActivity", "Received arduino data: " + data);
-        runOnUiThread(() -> {
-            try {
-                JSONObject jsonData = new JSONObject(data);
+        try {
+            Log.d("BLE_DATA", "Raw data received: " + data);
+            JSONObject jsonData = new JSONObject(data);
 
-                // Parse data with error checking
-                float ph = (float) jsonData.optDouble("ph", 0);
-                float temperature = (float) jsonData.optDouble("temperature", 0);
-                float nitrogen = (float) jsonData.optDouble("nitrogen", 0);
-                float phosphorus = (float) jsonData.optDouble("phosphorus", 0);
-                float potassium = (float) jsonData.optDouble("potassium", 0);
-                float moisture = (float) jsonData.optDouble("moisture", 0);
-                float salinity = (float) jsonData.optDouble("salinity", 0);
+            float ph = (float) jsonData.optDouble("ph", 0);
+            float temperature = (float) jsonData.optDouble("temperature", 0);
+            float nitrogen = (float) jsonData.optDouble("nitrogen", 0);
+            float phosphorus = (float) jsonData.optDouble("phosphorus", 0);
+            float potassium = (float) jsonData.optDouble("potassium", 0);
+            float moisture = (float) jsonData.optDouble("moisture", 0);
+            float salinity = (float) jsonData.optDouble("salinity", 0);
 
-                // Validate person ID
-                String personId = etPersonId.getText().toString().trim();
-                if (personId.isEmpty()) {
-                    Toast.makeText(this, "Please enter Location/Person ID", Toast.LENGTH_LONG).show();
+            double latitude = 0, longitude = 0;
+            if (jsonData.has("latitude") && jsonData.has("longitude")) {
+                latitude = jsonData.optDouble("latitude", 0);
+                longitude = jsonData.optDouble("longitude", 0);
+            } else if (jsonData.has("location") && jsonData.optString("location").equals("unavailable")) {
+                Log.d("GPS", "Location data unavailable");
+            }
+
+            String personId = etPersonId.getText().toString().trim();
+            if (personId.isEmpty()) {
+                runOnUiThread(() -> {
+                    showToast("Please enter Location/Person ID");
                     etPersonId.requestFocus();
-                    return;
-                }
+                });
+                return;
+            }
 
-                // Create SoilData object
-                SoilData sensorData = new SoilData(
-                        temperature, salinity, ph, moisture,
-                        nitrogen, phosphorus, potassium, personId
-                );
-                sensorData.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                        .format(new Date()));
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .format(new Date());
 
-                // Save and update UI
-                saveToBothDatabases(sensorData);
-                updateDataDisplay(sensorData);
+            SoilData soilData = new SoilData(
+                    temperature, salinity, ph, moisture,
+                    nitrogen, phosphorus, potassium, personId
+            );
+            soilData.setTimestamp(timestamp);
 
-                // Add to data processor
-                String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
-                        nitrogen, phosphorus, potassium);
-                dataProcessor.addData(temperature, salinity, ph, moisture, npk);
+            if (latitude != 0 && longitude != 0) {
+                soilData.setLatitude(latitude);
+                soilData.setLongitude(longitude);
+            }
 
-            } catch (JSONException e) {
-                Log.e("MainActivity", "Error parsing Arduino JSON data", e);
-                Toast.makeText(this, "Invalid data format from Arduino", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                Log.e("MainActivity", "Unexpected error processing Arduino data", e);
+            saveToBothDatabases(soilData);
+
+            String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
+                    nitrogen, phosphorus, potassium);
+            dataProcessor.addData(temperature, (int) salinity, ph, (int) moisture, npk);
+
+            updateUI(soilData);
+
+        } catch (JSONException e) {
+            Log.e("MainActivity", "Error parsing JSON", e);
+            runOnUiThread(() -> showToast("Invalid data format: " + e.getMessage()));
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error processing data", e);
+            runOnUiThread(() -> showToast("Error processing data"));
+        }
+    }
+
+    @Override
+    public void onError(String message) {
+        runOnUiThread(() -> {
+            showToast(message);
+            textViewConnectionStatus.setText(message);
+            textViewConnectionStatus.setTextColor(Color.RED);
+            progressBar.setVisibility(View.GONE);
+        });
+    }
+
+    @Override
+    public void onScanStatusChanged(boolean scanning) {
+        runOnUiThread(() -> {
+            progressBar.setVisibility(scanning ? View.VISIBLE : View.GONE);
+            if (deviceSelectionDialog != null && deviceSelectionDialog.isShowing()) {
+                deviceSelectionDialog.setTitle(scanning ? "Scanning for devices..." : "Select a device");
             }
         });
     }
 
-    private void updateDataDisplay(SoilData data) {
-        String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
-                data.getNitrogen(), data.getPhosphorus(), data.getPotassium());
+    private void showDeviceSelectionDialog() {
+        discoveredDevices.clear();
 
-        TableRow row = new TableRow(this);
-        row.addView(createTextView(data.getPersonId()));
-        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getTemperature())));
-        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getSalinity())));
-        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getPh())));
-        row.addView(createTextView(String.format(Locale.getDefault(), "%.1f", data.getMoisture())));
-        row.addView(createTextView(npk));
-        tableLayout.addView(row);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Scanning for devices...");
 
-        scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-    }
+        ListView devicesListView = new ListView(this);
+        devicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        devicesListView.setAdapter(devicesAdapter);
 
-    @SuppressLint("MissingPermission")
-    private void disconnectBLE() {
-        if (isTestMode) {
-            bluetoothTestSimulator.stopTest();
-            isConnected = false;
-            buttonConnectDisconnect.setText("Connect");
-            return;
-        }
-
-        if (bluetoothGatt != null) {
-            bluetoothGatt.disconnect();
-        }
-    }
-
-    private void closeGatt() {
-        if (bluetoothGatt != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSIONS);
-                    return;
-                }
+        devicesListView.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < discoveredDevices.size()) {
+                lastConnectedDevice = discoveredDevices.get(position);
+                bluetoothHandler.connectToDevice(lastConnectedDevice);
+                deviceSelectionDialog.dismiss();
             }
-            bluetoothGatt.close();
-            bluetoothGatt = null;
+        });
+
+        builder.setView(devicesListView);
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            bluetoothHandler.stopBleScan();
+            dialog.dismiss();
+        });
+
+        deviceSelectionDialog = builder.create();
+        deviceSelectionDialog.setOnDismissListener(dialog -> bluetoothHandler.stopBleScan());
+        deviceSelectionDialog.show();
+
+        bluetoothHandler.startBleScan();
+    }
+
+    private boolean containsDevice(List<BluetoothDevice> devices, BluetoothDevice device) {
+        for (BluetoothDevice d : devices) {
+            if (d.getAddress().equals(device.getAddress())) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    private void saveToBothDatabases(SoilData data) {
+        try {
+            DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("soil_readings");
+            String firebaseKey = firebaseRef.push().getKey();
+            if (firebaseKey != null) {
+                firebaseRef.child(firebaseKey).setValue(data)
+                        .addOnSuccessListener(aVoid -> Log.d("Firebase", "Data saved"))
+                        .addOnFailureListener(e -> Log.e("Firebase", "Save failed", e));
+            }
+
+            dbManager.addSoilData(data);
+        } catch (Exception e) {
+            Log.e("Database", "Error saving data", e);
+        }
+    }
+
+    private void updateUI(SoilData data) {
+        runOnUiThread(() -> {
+            String npk = String.format(Locale.getDefault(), "%.1f-%.1f-%.1f",
+                    data.getNitrogen(), data.getPhosphorus(), data.getPotassium());
+
+            TableRow row = new TableRow(this);
+            row.addView(createTextView(data.getPersonId()));
+            row.addView(createTextView(String.format("%.1f", data.getTemperature())));
+            row.addView(createTextView(String.format("%.1f", data.getSalinity())));
+            row.addView(createTextView(String.format("%.1f", data.getPh())));
+            row.addView(createTextView(String.format("%.1f", data.getMoisture())));
+            row.addView(createTextView(npk));
+            tableLayout.addView(row);
+
+            scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+        });
     }
 
     private TextView createTextView(String text) {
         TextView textView = new TextView(this);
         textView.setText(text);
-        textView.setPadding(8, 8, 8, 8);
-        textView.setTextSize(16);
+        textView.setPadding(16, 8, 16, 8);
+        textView.setTextSize(14);
         return textView;
     }
 
     private void calculateAverages() {
-        // Get data from both sources
-        List<SoilData> allData = new ArrayList<>();
-
-        // 1. Get data from DataProcessor (BLE data)
-        if (dataProcessor.hasData()) {
-            SoilData bleData = new SoilData(
-                    dataProcessor.getAverageTemperature(),
-                    dataProcessor.getAverageSalinity(),
-                    dataProcessor.getAveragepH(),
-                    dataProcessor.getAverageMoisture(),
-                    parseNitrogen(dataProcessor.getAverageNPK()),
-                    parsePhosphorus(dataProcessor.getAverageNPK()),
-                    parsePotassium(dataProcessor.getAverageNPK()),
-                    "BLE_DATA"
-            );
-            allData.add(bleData);
-        }
-
-        // 2. Get data from local database
-        List<SoilData> dbData = dbManager.getAllSoilData();
-        allData.addAll(dbData);
+        List<SoilData> allData = dbManager.getAllSoilData();
 
         if (allData.isEmpty()) {
-            runOnUiThread(() ->
-                    Toast.makeText(this, "No data available to calculate averages", Toast.LENGTH_SHORT).show()
-            );
+            showToast("No data available");
             return;
         }
 
-        // Calculate sums
-        float avgTemp = 0, avgSalinity = 0, avgPh = 0, avgMoisture = 0;
-        float avgNitrogen = 0, avgPhosphorus = 0, avgPotassium = 0;
+        float sumTemp = 0, sumSalinity = 0, sumPh = 0, sumMoisture = 0;
+        float sumNitrogen = 0, sumPhosphorus = 0, sumPotassium = 0;
 
         for (SoilData data : allData) {
-            avgTemp += data.getTemperature();
-            avgSalinity += data.getSalinity();
-            avgPh += data.getPh();
-            avgMoisture += data.getMoisture();
-            avgNitrogen += data.getNitrogen();
-            avgPhosphorus += data.getPhosphorus();
-            avgPotassium += data.getPotassium();
+            sumTemp += data.getTemperature();
+            sumSalinity += data.getSalinity();
+            sumPh += data.getPh();
+            sumMoisture += data.getMoisture();
+            sumNitrogen += data.getNitrogen();
+            sumPhosphorus += data.getPhosphorus();
+            sumPotassium += data.getPotassium();
         }
 
         int count = allData.size();
-
-        // Create final averages for use in lambda
-        final float finalAvgTemp = avgTemp / count;
-        final float finalAvgSalinity = avgSalinity / count;
-        final float finalAvgPh = avgPh / count;
-        final float finalAvgMoisture = avgMoisture / count;
-        final float finalAvgNitrogen = avgNitrogen / count;
-        final float finalAvgPhosphorus = avgPhosphorus / count;
-        final float finalAvgPotassium = avgPotassium / count;
-
-        // Create timestamp
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                 .format(new Date());
 
-        // Create average record
-        SoilData averageData = new SoilData(
-                finalAvgTemp, finalAvgSalinity, finalAvgPh, finalAvgMoisture,
-                finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium,
+        SoilData averages = new SoilData(
+                sumTemp / count,
+                sumSalinity / count,
+                sumPh / count,
+                sumMoisture / count,
+                sumNitrogen / count,
+                sumPhosphorus / count,
+                sumPotassium / count,
                 "AVERAGES_" + timestamp
         );
-        averageData.setTimestamp(timestamp);
+        averages.setTimestamp(timestamp);
 
-        // Save to database
-        dbManager.addSoilData(averageData);
+        dbManager.addSoilData(averages);
 
-        // Update UI
         runOnUiThread(() -> {
-            textViewAverages.setText(
-                    "Average Temperature: " + String.format("%.1f", finalAvgTemp) + "°C\n" +
-                            "Average Salinity: " + String.format("%.1f", finalAvgSalinity) + "\n" +
-                            "Average pH: " + String.format("%.1f", finalAvgPh) + "\n" +
-                            "Average Moisture: " + String.format("%.1f", finalAvgMoisture) + "\n" +
-                            "Average NPK: " + String.format("%.1f-%.1f-%.1f",
-                            finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium)
-            );
+            textViewAverages.setText(String.format(
+                    "Averages:\nTemp: %.1f°C\nSalinity: %.1f\npH: %.1f\nMoisture: %.1f\nNPK: %.1f-%.1f-%.1f",
+                    averages.getTemperature(),
+                    averages.getSalinity(),
+                    averages.getPh(),
+                    averages.getMoisture(),
+                    averages.getNitrogen(),
+                    averages.getPhosphorus(),
+                    averages.getPotassium()
+            ));
 
             TableRow row = new TableRow(this);
             row.addView(createTextView("AVG: " + timestamp));
-            row.addView(createTextView(String.format("%.1f", finalAvgTemp)));
-            row.addView(createTextView(String.format("%.1f", finalAvgSalinity)));
-            row.addView(createTextView(String.format("%.1f", finalAvgPh)));
-            row.addView(createTextView(String.format("%.1f", finalAvgMoisture)));
+            row.addView(createTextView(String.format("%.1f", averages.getTemperature())));
+            row.addView(createTextView(String.format("%.1f", averages.getSalinity())));
+            row.addView(createTextView(String.format("%.1f", averages.getPh())));
+            row.addView(createTextView(String.format("%.1f", averages.getMoisture())));
             row.addView(createTextView(String.format("%.1f-%.1f-%.1f",
-                    finalAvgNitrogen, finalAvgPhosphorus, finalAvgPotassium)));
+                    averages.getNitrogen(), averages.getPhosphorus(), averages.getPotassium())));
             tableLayout.addView(row);
-
-            Toast.makeText(this, "Averages calculated and saved", Toast.LENGTH_SHORT).show();
         });
     }
 
-    // Helper methods to parse NPK values
-    private float parseNitrogen(String npk) {
-        try {
-            return Float.parseFloat(npk.split("-")[0]);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private float parsePhosphorus(String npk) {
-        try {
-            return Float.parseFloat(npk.split("-")[1]);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private float parsePotassium(String npk) {
-        try {
-            return Float.parseFloat(npk.split("-")[2]);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
     private void clearData() {
-        // Remove all rows except the first one (header row)
-        if (tableLayout.getChildCount() > 1) {
-            tableLayout.removeViews(1, tableLayout.getChildCount() - 1);
-        }
-
-        // Clear the data processor
-        dataProcessor.clearData();
-
-        // Clear the averages display
-        textViewAverages.setText("");
-
-        Toast.makeText(this, "Measurements cleared", Toast.LENGTH_SHORT).show();
+        runOnUiThread(() -> {
+            while (tableLayout.getChildCount() > 1) {
+                tableLayout.removeViewAt(1);
+            }
+            textViewAverages.setText("");
+            dataProcessor.clearData();
+            showToast("Data cleared");
+        });
     }
+
     private void showUploadDataDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Upload Soil Data Averages");
 
+        // Inflate custom dialog layout
         View view = getLayoutInflater().inflate(R.layout.dialog_upload_data, null);
         checkBoxIncludeCoordinates = view.findViewById(R.id.checkBoxIncludeCoordinates);
+        EditText etPersonId = view.findViewById(R.id.etPersonId); // Add this to your dialog_upload_data.xml
+        CheckBox checkBoxConfirmUpload = view.findViewById(R.id.checkBoxConfirmUpload); // Add this to your dialog_upload_data.xml
+
         builder.setView(view);
 
+        // Get average values
         float averageSalinity = dataProcessor.getAverageSalinity();
         float averagePh = dataProcessor.getAveragepH();
         float averageMoisture = dataProcessor.getAverageMoisture();
         String averageNPK = dataProcessor.getAverageNPK();
 
         builder.setPositiveButton("Upload", (dialog, which) -> {
+            String personId = etPersonId.getText().toString().trim();
+
+            // Validate inputs
+            if (personId.isEmpty()) {
+                showToast("Please enter Person ID");
+                return;
+            }
+
+            if (!checkBoxConfirmUpload.isChecked()) {
+                showToast("Please confirm the upload");
+                return;
+            }
+
+            // Prepare upload data
             Map<String, Object> uploadData = new HashMap<>();
+            uploadData.put("personId", personId);  // Added person ID
             uploadData.put("averageSalinity", averageSalinity);
             uploadData.put("averagePh", averagePh);
             uploadData.put("averageMoisture", averageMoisture);
             uploadData.put("averageNPK", averageNPK);
             uploadData.put("timestamp", FieldValue.serverTimestamp());
 
+            // Handle coordinates
             if (checkBoxIncludeCoordinates.isChecked()) {
                 uploadData.put("latitude", 0.0);
                 uploadData.put("longitude", 0.0);
@@ -784,40 +506,71 @@ public class MainActivity extends AppCompatActivity implements DataReceiver
                 uploadData.put("hasCoordinates", false);
             }
 
+
+            // Upload data
             new FirestoreHelper().uploadData(uploadData, new FirestoreHelper.UploadCallback() {
                 @Override
                 public void onSuccess() {
-                    runOnUiThread(() ->
-                            Toast.makeText(MainActivity.this, "Averages uploaded successfully", Toast.LENGTH_SHORT).show()
-                    );
+                    runOnUiThread(() -> {
+                        showToast("Averages uploaded successfully");
+                        etPersonId.setText(""); // Clear person ID after upload
+                        checkBoxConfirmUpload.setChecked(false); // Reset confirmation
+                    });
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    runOnUiThread(() ->
-                            Toast.makeText(MainActivity.this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+                    runOnUiThread(() -> showToast("Upload failed: " + e.getMessage()));
                 }
             });
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+
+        // Create and show dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Initially disable upload button until conditions are met
+        Button uploadButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        uploadButton.setEnabled(false);
+
+        // Add text watcher and checkbox listener to enable/disable upload button
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateUploadButtonState(uploadButton, etPersonId, checkBoxConfirmUpload);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        };
+
+        etPersonId.addTextChangedListener(textWatcher);
+        checkBoxConfirmUpload.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateUploadButtonState(uploadButton, etPersonId, checkBoxConfirmUpload);
+        });
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopBleScan();
+    private void updateUploadButtonState(Button uploadButton, EditText etPersonId, CheckBox confirmCheckbox) {
+        boolean isValid = !etPersonId.getText().toString().trim().isEmpty() &&
+                confirmCheckbox.isChecked();
+        uploadButton.setEnabled(isValid);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        disconnectBLE();
-        closeGatt();
-        if (bluetoothTestSimulator != null) {
-            bluetoothTestSimulator.cleanup();
+        handler.removeCallbacksAndMessages(null);
+        if (bluetoothHandler != null) {
+            bluetoothHandler.disconnectBLE();
         }
     }
 }
