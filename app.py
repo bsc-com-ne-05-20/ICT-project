@@ -4,7 +4,7 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
-api_key =""
+
 app = Flask(__name__)
 
 class Farmer_AgriGpt:
@@ -53,4 +53,4 @@ def ask():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  # Matching Render's port
+    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 5000)))  # This fetches renders port being used
