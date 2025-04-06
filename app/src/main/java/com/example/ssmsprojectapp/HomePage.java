@@ -24,7 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.FirebaseFirestore;
+//import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class HomePage extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
     //database
-    private FirebaseFirestore database;
+    //private FirebaseFirestore database;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -50,7 +50,7 @@ public class HomePage extends AppCompatActivity {
         });
 
         //init all database stuff
-        database = FirebaseFirestore.getInstance();
+        //database = FirebaseFirestore.getInstance();
 
 
         //init components
@@ -132,7 +132,7 @@ public class HomePage extends AppCompatActivity {
 
     //database methods
 
-    public void write2Firestore(FirebaseFirestore db){
+   /* public void write2Firestore(FirebaseFirestore db){
         Map<String, Object> farm = new HashMap<>();
         farm.put("owner", "John Doe");
         farm.put("location", "Lilongwe, Malawi");
@@ -143,9 +143,9 @@ public class HomePage extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data added"))
                 .addOnFailureListener(e -> Log.e("Firestore", "Error adding data", e));
 
-    }
+    }*/
 
-    public void readData(FirebaseFirestore db){
+    /*public void readData(FirebaseFirestore db){
         db.collection("farms").document("Farm1")
                 .get()
                 .addOnSuccessListener(document -> {
@@ -156,19 +156,19 @@ public class HomePage extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.e("Firestore", "Error fetching data", e));
 
-    }
+    }*/
 
-    public void updateData(FirebaseFirestore db){
+    /*public void updateData(FirebaseFirestore db){
         db.collection("farms").document("Farm1")
                 .update("soilPH", 7.2)
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data updated"));
 
-    }
+    }*/
 
-    public void deleteData(FirebaseFirestore db){
+    /*public void deleteData(FirebaseFirestore db){
         db.collection("farms").document("Farm1")
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data deleted"));
 
-    }
+    }*/
 }

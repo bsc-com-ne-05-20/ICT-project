@@ -28,6 +28,9 @@
         android:theme="@style/Theme.SSMSProjectApp"
         tools:targetApi="31">
         <activity
+            android:name=".Graphs"
+            android:exported="false" />
+        <activity
             android:name=".AIRecommendations"
             android:exported="false" />
         <activity
