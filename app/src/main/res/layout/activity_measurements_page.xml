@@ -11,137 +11,63 @@
     android:padding="16dp"
     tools:context=".MeasurementsPage">
 
-    <!-- Connect/Disconnect Button -->
     <Button
-        style="@style/Widget.AppCompat.Button"
-        android:id="@+id/buttonConnect"
+        android:id="@+id/scanButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Connect"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
+        android:text="Scan Devices"/>
 
-    <!-- Test Mode Switch -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Press Scan to find devices"
+        android:textSize="16sp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/devicesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp"
-        android:gravity="center_vertical">
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Test Mode"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:layout_marginEnd="8dp" />
+            android:text="Soil Sensor Data"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
 
-        <Switch
-            android:id="@+id/switchTestMode"
+        <TextView
+            android:id="@+id/moistureText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true" /> <!-- Default to Test Mode -->
-    </LinearLayout>
+            android:layout_marginTop="16dp"
+            android:text="Moisture: --%"
+            android:textSize="16sp"/>
 
-    <!-- Table Layout -->
-    <TableLayout
-        android:id="@+id/tableLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:stretchColumns="*">
-
-        <!-- Table Header -->
-        <TableRow
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/temperatureText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#C1C0C0">
+            android:layout_marginTop="8dp"
+            android:text="Temperature: --°C"
+            android:textSize="16sp"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Temperature"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Salinity"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="pH"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Moisture"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="NPK"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:padding="8dp"
-                android:gravity="center" />
-        </TableRow>
-    </TableLayout>
-
-    <!-- Calculate Averages Button -->
-    <Button
-        style="@style/Widget.AppCompat.Button"
-        android:id="@+id/buttonCalculateAverages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Calculate Averages"
-        app:backgroundTint="#EB971E"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Clear Data Button -->
-    <Button
-        style="@style/Widget.AppCompat.Button"
-        android:id="@+id/buttonClearData"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Clear Data"
-        app:backgroundTint="#F44336"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Averages Display -->
-    <TextView
-        android:id="@+id/textViewAverages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Averages will appear here"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:padding="8dp" />
+        <TextView
+            android:id="@+id/ecText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="EC: -- µS/cm"
+            android:textSize="16sp"/>
+    </LinearLayout>
 </LinearLayout>
