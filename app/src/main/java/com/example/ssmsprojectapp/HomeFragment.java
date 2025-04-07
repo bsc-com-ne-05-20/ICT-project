@@ -28,7 +28,7 @@ public class HomeFragment extends Fragment {
    private RecyclerView recyclerView;
 
    private LinearLayout salinity,metals,nitrogen,phosphorous,temperature,moisture,potassium;
-   private CardView recommendations, newMeasurement;
+   private CardView recommendations, newMeasurement,graphs;
 
    private Spinner spinner;
 
@@ -52,6 +52,15 @@ public class HomeFragment extends Fragment {
         //init stats
         initStats(view);
 
+        //init graphs
+        graphs = view.findViewById(R.id.view_graphs);
+        graphs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //navigate to the graphs activity
+                startActivity(new Intent(view.getContext(), Graphs.class));
+            }
+        });
         //init the recommendations
         recommendations = view.findViewById(R.id.recommendations);
         recommendations.setOnClickListener(new View.OnClickListener() {

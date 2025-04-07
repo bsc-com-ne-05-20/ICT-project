@@ -2,6 +2,7 @@ package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -128,6 +130,24 @@ public class HomePage extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.dialoganimation;
         dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Do want to exit the app?")
+                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("No",null)
+                .setIcon(android.R.drawable.ic_dialog_alert);
+        builder.show();
     }
 
     //database methods
