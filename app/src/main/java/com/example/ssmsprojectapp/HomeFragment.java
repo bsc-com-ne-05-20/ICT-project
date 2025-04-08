@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class HomeFragment extends Fragment {
 
    private RecyclerViewAdapter adapter;
    private RecyclerView recyclerView;
+
+   private TextView seeAll;
 
    private LinearLayout salinity,metals,nitrogen,phosphorous,temperature,moisture,potassium;
    private CardView recommendations, newMeasurement,graphs;
@@ -51,6 +54,15 @@ public class HomeFragment extends Fragment {
 
         //init stats
         initStats(view);
+
+        //init seeAll
+        seeAll = view.findViewById(R.id.see_all);
+        seeAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         //init graphs
         graphs = view.findViewById(R.id.view_graphs);
@@ -122,49 +134,76 @@ public class HomeFragment extends Fragment {
         salinity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"salinity");
+
+                //statsDialog(view,"salinity");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new SalinityFragment())
+                        .commit();
             }
         });
         metals = view.findViewById(R.id.metals);
         metals.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"metals");
+
+                //statsDialog(view,"metals");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new MetalsFragment())
+                        .commit();
             }
         });
         nitrogen = view.findViewById(R.id.nitrogen);
         nitrogen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"nitrogen");
+
+                //statsDialog(view,"nitrogen");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new NutrientsFragment())
+                        .commit();
             }
         });
         phosphorous = view.findViewById(R.id.phosphorous);
         phosphorous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"phosphorous");
+
+                //statsDialog(view,"phosphorous");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new NutrientsFragment())
+                        .commit();
             }
         });
         temperature = view.findViewById(R.id.temperature);
         temperature.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"temperature");
+                //statsDialog(view,"temperature");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new TemperatureFragment())
+                        .commit();
             }
         });
         moisture = view.findViewById(R.id.moisture);
         moisture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"moisture");
+
+                //statsDialog(view,"moisture");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new MoistureFragment())
+                        .commit();
             }
         });
         potassium = view.findViewById(R.id.potassium);
         potassium.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statsDialog(view,"potassium");
+
+                //statsDialog(view,"potassium");
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container,new NutrientsFragment())
+                        .commit();
             }
         });
     }
