@@ -6,61 +6,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/back2"
     android:gravity="center"
+    android:background="@color/main_color_sub3"
     tools:context=".Login1">
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
+        android:textSize="18sp"
         android:textColor="#204921"
-        android:layout_margin="30dp"
+        android:layout_margin="5dp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-condensed"
         android:letterSpacing="0.1"
         android:textAlignment="center"
-        android:text="Lets get you started with SSMS as:" />
+        android:text="Register as:" />
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="15dp"
-        android:layout_margin="15dp"
-        android:background="@drawable/box1"
-        android:gravity="center">
-        <CheckBox
-            android:id="@+id/checkBox1"
-            android:layout_width="250dp"
-            android:layout_margin="15dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:text="Coorporate" />
+        android:layout_marginEnd="15dp"
+        app:cardCornerRadius="3dp"
+        app:cardElevation="5dp"
+        app:cardBackgroundColor="@color/main_color_sub2"
+        android:layout_marginStart="15dp">
 
-        <CheckBox
-            android:id="@+id/checkBox2"
-            android:layout_width="250dp"
-            android:layout_marginBottom="15dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:layout_gravity="center_horizontal"
-            android:textSize="18sp"
-            android:text="individual farmer" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:layout_margin="15dp"
+            android:gravity="center">
+            <CheckBox
+                android:id="@+id/checkBox1"
+                android:layout_width="250dp"
+                android:layout_margin="15dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="15sp"
+                android:textColor="@color/white"
+                android:text="Coorporative" />
+
+            <CheckBox
+                android:id="@+id/checkBox2"
+                android:layout_width="250dp"
+                android:layout_marginBottom="15dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:layout_gravity="center_horizontal"
+                android:textSize="15sp"
+                android:text="individual farmer" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/getStartedBtn"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="30dp"
-        android:backgroundTintMode="add"
-        android:text="Get started"
-        android:textColor="@color/white"
-        android:textSize="20sp"
+        android:text="Continue"
+        android:textAllCaps="false"
         android:textStyle="bold" />
 </LinearLayout>
