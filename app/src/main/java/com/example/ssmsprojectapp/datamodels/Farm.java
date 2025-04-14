@@ -3,52 +3,64 @@ package com.example.ssmsprojectapp.datamodels;
 import java.util.List;
 
 public class Farm {
-    private String owrner;
-    private long latitude;
-    private long longitude;
-    private String SoilType;
+    private String id;  // Firestore document ID
+    private String farmerId;  // Reference to owner
+    private double latitude;  // Changed from long to double
+    private double longitude;
+    private String soilType;
     private String metals;
-    private List<Measurements> measurements;
 
-    public Farm(String owrner, long latitude, long longitude, String soilType, String metals, List<Measurements> measurements) {
-        this.owrner = owrner;
+    // No longer storing measurements list directly - we'll query them
+    public Farm() {}  // Required for Firestore
+
+    public Farm(String id, String farmerId, double latitude, double longitude,
+                String soilType, String metals) {
+        this.id = id;
+        this.farmerId = farmerId;
         this.latitude = latitude;
         this.longitude = longitude;
-        SoilType = soilType;
+        this.soilType = soilType;
         this.metals = metals;
-        this.measurements = measurements;
     }
 
-    public String getOwrner() {
-        return owrner;
+    public String getId() {
+        return id;
     }
 
-    public void setOwrner(String owrner) {
-        this.owrner = owrner;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public long getLatitude() {
+    public String getFarmerId() {
+        return farmerId;
+    }
+
+    public void setFarmerId(String farmerId) {
+        this.farmerId = farmerId;
+    }
+
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(long latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public long getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(long longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
     public String getSoilType() {
-        return SoilType;
+        return soilType;
     }
 
     public void setSoilType(String soilType) {
-        SoilType = soilType;
+        this.soilType = soilType;
     }
 
     public String getMetals() {
@@ -57,13 +69,5 @@ public class Farm {
 
     public void setMetals(String metals) {
         this.metals = metals;
-    }
-
-    public List<Measurements> getMeasurements() {
-        return measurements;
-    }
-
-    public void setMeasurements(List<Measurements> measurements) {
-        this.measurements = measurements;
     }
 }

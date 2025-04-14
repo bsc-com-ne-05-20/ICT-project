@@ -3,20 +3,32 @@ package com.example.ssmsprojectapp.datamodels;
 import java.util.List;
 
 public class Farmer {
+    private String id;  // Firestore document ID
     private String name;
     private String email;
     private String phone;
     private String location;
+    private String cooperativeId;  // Reference to cooperative instead of name
 
-    private List<Farm> farms;
+    // No longer storing farms list directly - we'll query them
+    public Farmer() {}  // Required for Firestore
 
-    //constructor
-    public Farmer(String name, String email, String phone, String location, List<Farm> farms) {
+    public Farmer(String id, String name, String email, String phone,
+                  String location, String cooperativeId) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.location = location;
-        this.farms = farms;
+        this.cooperativeId = cooperativeId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -51,12 +63,11 @@ public class Farmer {
         this.location = location;
     }
 
-    public List<Farm> getFarms() {
-        return farms;
+    public String getCooperativeId() {
+        return cooperativeId;
     }
 
-    public void setFarms(List<Farm> farms) {
-        this.farms = farms;
+    public void setCooperativeId(String cooperativeId) {
+        this.cooperativeId = cooperativeId;
     }
-
 }

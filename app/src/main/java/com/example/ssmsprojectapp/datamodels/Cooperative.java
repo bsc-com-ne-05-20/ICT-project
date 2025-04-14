@@ -3,23 +3,32 @@ package com.example.ssmsprojectapp.datamodels;
 import java.util.List;
 
 public class Cooperative {
+    private String id;  // Firestore document ID
     private String name;
     private String location;
-
-    private String represetative;
-
+    private String representative;
     private String email;
-
     private String phone;
-    private List<Farmer> farmers;
 
-    public Cooperative(String name, String location, String represetative, String email, String phone, List<Farmer> farmers) {
+    // No longer storing farmers list directly - we'll query them
+    public Cooperative() {}  // Required for Firestore
+
+    public Cooperative(String id, String name, String location, String representative,
+                       String email, String phone) {
+        this.id = id;
         this.name = name;
         this.location = location;
-        this.represetative = represetative;
+        this.representative = representative;
         this.email = email;
         this.phone = phone;
-        this.farmers = farmers;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -38,12 +47,12 @@ public class Cooperative {
         this.location = location;
     }
 
-    public String getRepresetative() {
-        return represetative;
+    public String getRepresentative() {
+        return representative;
     }
 
-    public void setRepresetative(String represetative) {
-        this.represetative = represetative;
+    public void setRepresentative(String representative) {
+        this.representative = representative;
     }
 
     public String getEmail() {
@@ -60,13 +69,5 @@ public class Cooperative {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public List<Farmer> getFarmers() {
-        return farmers;
-    }
-
-    public void setFarmers(List<Farmer> farmers) {
-        this.farmers = farmers;
     }
 }
