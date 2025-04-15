@@ -10,7 +10,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-feature android:name="android.software.companion_device_setup" />
+
+    <uses-feature android:name="android.software.companion_device_setup"/>
 
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -28,6 +31,12 @@
         android:theme="@style/Theme.SSMSProjectApp"
         tools:targetApi="31">
         <activity
+            android:name=".RegisterFarmer"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterCooperative"
+            android:exported="false" />
+        <activity
             android:name=".SeeAllMeasurements"
             android:exported="false" />
         <activity
@@ -35,6 +44,10 @@
             android:exported="false" />
         <activity
             android:name=".AIRecommendations"
+            android:exported="false" />
+
+        <activity
+            android:name=".AgriChatbot"
             android:exported="false" />
         <activity
             android:name=".TakeCoordinates"
