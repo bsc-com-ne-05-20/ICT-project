@@ -11,80 +11,53 @@
     android:padding="16dp"
     tools:context=".MeasurementsPage">
 
-    <LinearLayout
-        android:id="@+id/scanning_linearlayout"
+    <TextView
+        android:id="@+id/tvStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:text="Status: Ready"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:padding="8dp"/>
 
-        <Button
-            android:id="@+id/scanButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/blue"
-            android:text="Scan Devices"/>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="15dp"
-            android:padding="8dp">
-            <TextView
-                android:id="@+id/statusText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAlignment="center"
-                android:text="Press Scan to find devices"
-                android:layout_marginBottom="15dp"
-                android:textSize="16sp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/devicesRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"/>
-        </androidx.cardview.widget.CardView>
-
-
-    </LinearLayout>
-    <LinearLayout
+    <Button
+        android:id="@+id/btnConnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Connect"
+        android:layout_marginTop="16dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
         android:layout_marginTop="16dp"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="5dp"
+        android:background="@drawable/box">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Soil Sensor Data"
-            android:textSize="18sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/moistureText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Moisture: --%"
+            android:id="@+id/tvData"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:gravity="center"
+            android:text="No data received yet"
             android:textSize="16sp"/>
+    </ScrollView>
 
-        <TextView
-            android:id="@+id/temperatureText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Temperature: --°C"
-            android:textSize="16sp"/>
+    <Button
+        android:id="@+id/button_takemeasurement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#EF991A"
+        android:layout_margin="15dp"
+        android:text="Take measurement" />
 
-        <TextView
-            android:id="@+id/ecText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="EC: -- µS/cm"
-            android:textSize="16sp"/>
-    </LinearLayout>
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#F83C2E"
+        android:layout_margin="15dp"
+        android:text="upload data" />
+
 </LinearLayout>

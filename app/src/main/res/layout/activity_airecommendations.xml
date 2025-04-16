@@ -92,7 +92,7 @@
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="20dp"
         android:backgroundTint="#2C95FE"
-        android:text="Proceed to chat" />
+        android:text="Proceed to Assistant" />
 
 
 </LinearLayout>

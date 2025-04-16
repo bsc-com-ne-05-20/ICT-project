@@ -69,7 +69,7 @@ public class Onboarding extends AppCompatActivity {
                     viewPager.setCurrentItem(getitem(1),true);
                 else {
 
-                    Intent i = new Intent(Onboarding.this,Login1.class);
+                    Intent i = new Intent(Onboarding.this,Login2.class);
                     startActivity(i);
                     finish();
 
@@ -83,7 +83,7 @@ public class Onboarding extends AppCompatActivity {
             public void onClick(View v) {
 
                 //go straght to the log in page
-                Intent i = new Intent(Onboarding.this,Login1.class);
+                Intent i = new Intent(Onboarding.this,Login2.class);
                 startActivity(i);
                 finish();
             }
@@ -109,12 +109,12 @@ public class Onboarding extends AppCompatActivity {
             dots[i] = new TextView(this);
             dots[i].setText(Html.fromHtml("&#8226"));
             dots[i].setTextSize(35);
-            dots[i].setTextColor(getResources().getColor(R.color.inactive,getApplicationContext().getTheme()));
+            dots[i].setTextColor(getResources().getColor(R.color.main_color_sub2,getApplicationContext().getTheme()));
             dotLayout.addView(dots[i]);
 
         }
 
-        dots[position].setTextColor(getResources().getColor(R.color.active,getApplicationContext().getTheme()));
+        dots[position].setTextColor(getResources().getColor(R.color.main_color,getApplicationContext().getTheme()));
 
     }
 

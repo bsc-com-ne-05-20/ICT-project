@@ -52,77 +52,11 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,false));
         recyclerView.setAdapter(adapter);
 
-        //init stats
-        initStats(view);
 
         //init seeAll
-        seeAll = view.findViewById(R.id.see_all);
-        seeAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        //init graphs
-        graphs = view.findViewById(R.id.view_graphs);
-        graphs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //navigate to the graphs activity
-                startActivity(new Intent(view.getContext(), Graphs.class));
-            }
-        });
-        //init the recommendations
-        recommendations = view.findViewById(R.id.recommendations);
-        recommendations.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                startActivity(new Intent(view.getContext(), AIRecommendations.class));
-            }
-        });
-
-        //init new measurement
-        newMeasurement = view.findViewById(R.id.new_measurement);
-        newMeasurement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(view.getContext(), MeasurementsPage.class));
-            }
-        });
-
-        //init the spinner
-        spinner = view.findViewById(R.id.spinner);
-
-        // Create a dynamic ArrayList
-        ArrayList<String> items = new ArrayList<>();
-        items.add("Thondwe 8 acres");
-        items.add("Bunda");
-        items.add("see all");
 
 
-        // Create Adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, items);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Set adapter to Spinner
-        spinner.setAdapter(adapter);
-
-        // Handle item selection
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedItem = parent.getItemAtPosition(position).toString();
-                Toast.makeText(view.getContext(), "Selected: " + selectedItem, Toast.LENGTH_SHORT).show();
-
-                //load the data of that farm
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
 
 
         return view;
@@ -130,82 +64,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void initStats(View view) {
-        salinity = view.findViewById(R.id.salinity);
-        salinity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                //statsDialog(view,"salinity");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new SalinityFragment())
-                        .commit();
-            }
-        });
-        metals = view.findViewById(R.id.metals);
-        metals.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //statsDialog(view,"metals");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new MetalsFragment())
-                        .commit();
-            }
-        });
-        nitrogen = view.findViewById(R.id.nitrogen);
-        nitrogen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //statsDialog(view,"nitrogen");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new NutrientsFragment())
-                        .commit();
-            }
-        });
-        phosphorous = view.findViewById(R.id.phosphorous);
-        phosphorous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //statsDialog(view,"phosphorous");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new NutrientsFragment())
-                        .commit();
-            }
-        });
-        temperature = view.findViewById(R.id.temperature);
-        temperature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //statsDialog(view,"temperature");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new TemperatureFragment())
-                        .commit();
-            }
-        });
-        moisture = view.findViewById(R.id.moisture);
-        moisture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //statsDialog(view,"moisture");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new MoistureFragment())
-                        .commit();
-            }
-        });
-        potassium = view.findViewById(R.id.potassium);
-        potassium.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //statsDialog(view,"potassium");
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new NutrientsFragment())
-                        .commit();
-            }
-        });
     }
 
     public void statsDialog(View view,String param){

@@ -2,7 +2,6 @@ package com.example.ssmsprojectapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,22 +11,10 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
-import android.companion.AssociationRequest;
-import android.companion.BluetoothDeviceFilter;
-import android.companion.CompanionDeviceManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,49 +22,47 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
-public class MeasurementsPage extends AppCompatActivity implements DeviceListAdapter.OnDeviceClickListener{
+public class MeasurementsPage extends AppCompatActivity{
 
-    private static final String TAG = "SoilMonitor";
-    private static final int REQUEST_ENABLE_BT = 1;
-    private static final int PERMISSION_REQUEST_CODE = 2;
-    private static final long SCAN_PERIOD = 10000; // 10 seconds scan
+    private static final String TAG = "SoilMonitorApp";
 
+    // BLE UUIDs matching the ESP32 code
     private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
     private static final UUID CHARACTERISTIC_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
+    private static final String DEVICE_NAME = "SoilMonitor";
 
+    // UI Elements
+    private TextView tvStatus, tvData;
+    private Button btnConnect;
+
+    // BLE Variables
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothGatt bluetoothGatt;
-    private boolean scanning = false;
-    private Handler handler = new Handler();
+    private BluetoothDevice targetDevice;
+    private boolean connected = false;
 
-    private Button scanButton;
-    private TextView statusText;
-    private TextView moistureText;
-    private TextView temperatureText;
-    private TextView ecText;
-    private RecyclerView devicesRecyclerView;
-    private DeviceListAdapter deviceListAdapter;
-    private List<BluetoothDevice> deviceList = new ArrayList<>();
-
+    // Permission request code
+    private static final int REQUEST_ALL_PERMISSIONS = 1;
+    private static final String[] REQUIRED_PERMISSIONS = {
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT
+    };
 
     @SuppressLint("MissingPermission")
     @Override
@@ -92,114 +77,126 @@ public class MeasurementsPage extends AppCompatActivity implements DeviceListAda
         });
 
         // Initialize UI
-        scanButton = findViewById(R.id.scanButton);
-        statusText = findViewById(R.id.statusText);
-        moistureText = findViewById(R.id.moistureText);
-        temperatureText = findViewById(R.id.temperatureText);
-        ecText = findViewById(R.id.ecText);
-        devicesRecyclerView = findViewById(R.id.devicesRecyclerView);
-
-        // Setup RecyclerView
-        deviceListAdapter = new DeviceListAdapter(deviceList, this);
-        devicesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        devicesRecyclerView.setAdapter(deviceListAdapter);
+        tvStatus = findViewById(R.id.tvStatus);
+        tvData = findViewById(R.id.tvData);
+        btnConnect = findViewById(R.id.btnConnect);
 
         // Check permissions
-        checkPermissions();
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
 
-        // Initialize Bluetooth adapter
-        final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        // Initialize Bluetooth
+        initializeBluetooth();
 
-        // Set up scan button
-        scanButton.setOnClickListener(v -> {
-            if (!scanning) {
-                startScan();
+        // Set up button click listener
+        btnConnect.setOnClickListener(v -> {
+            if (!connected) {
+                connectToDevice();
             } else {
-                stopScan();
+                disconnectFromDevice();
             }
         });
     }
 
 
-    private void checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.BLUETOOTH,
-                            Manifest.permission.BLUETOOTH_ADMIN
-                    },
-                    PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startScan() {
-        deviceList.clear();
-        deviceListAdapter.notifyDataSetChanged();
-        scanning = true;
-        scanButton.setText("Stop Scan");
-        statusText.setText("Scanning...");
-
-        handler.postDelayed(() -> {
-            if (scanning) {
-                stopScan();
+    private boolean checkPermissions() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
             }
-        }, SCAN_PERIOD);
+        }
+        return true;
+    }
 
-        bluetoothLeScanner.startScan(scanCallback);
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_ALL_PERMISSIONS);
     }
 
     @SuppressLint("MissingPermission")
-    private void stopScan() {
-        scanning = false;
-        scanButton.setText("Scan Devices");
-        statusText.setText("Select a device to connect");
-        bluetoothLeScanner.stopScan(scanCallback);
+    private void initializeBluetooth() {
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        bluetoothAdapter = bluetoothManager.getAdapter();
+
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Toast.makeText(this, "Bluetooth is not available or disabled", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        // Start scanning for devices (you could implement a scan here if needed)
+        updateStatus("Ready to connect");
     }
 
-    private ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
+    @SuppressLint("MissingPermission")
+    private void connectToDevice() {
+        updateStatus("Searching for device...");
 
-            BluetoothDevice device = result.getDevice();
-            if (!deviceList.contains(device) ){
-                deviceList.add(device);
-                deviceListAdapter.notifyDataSetChanged();
+        // In a real app, you might want to scan for devices first
+        // For simplicity, we'll try to connect directly to the known device name
+
+        // Find the device by name
+        for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+            if (DEVICE_NAME.equals(device.getName())) {
+                targetDevice = device;
+                break;
             }
         }
 
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-            Log.e(TAG, "Scan failed with error: " + errorCode);
-            runOnUiThread(() -> {
-                statusText.setText("Scan failed: " + errorCode);
-                scanButton.setText("Scan Devices");
-            });
-            scanning = false;
+        if (targetDevice == null) {
+            updateStatus("Device not found. Make sure it's paired.");
+            return;
         }
-    };
 
-    @Override
-    public void onDeviceClick(BluetoothDevice device) {
-        stopScan();
-        connectToDevice(device);
+        updateStatus("Connecting to " + targetDevice.getName() + "...");
+        btnConnect.setEnabled(false);
+
+        // Connect to the GATT server
+        bluetoothGatt = targetDevice.connectGatt(this, false, gattCallback);
     }
 
     @SuppressLint("MissingPermission")
-    private void connectToDevice(BluetoothDevice device) {
+    private void disconnectFromDevice() {
         if (bluetoothGatt != null) {
             bluetoothGatt.disconnect();
-            bluetoothGatt.close();
         }
+    }
 
-        statusText.setText("Connecting to " + device.getName() + "...");
-        bluetoothGatt = device.connectGatt(this, false, gattCallback);
+    private void updateStatus(String message) {
+        runOnUiThread(() -> tvStatus.setText(message));
+    }
+
+    private void updateDataDisplay(String data) {
+        try {
+            JSONObject json = new JSONObject(data);
+            StringBuilder displayText = new StringBuilder();
+
+            // GPS Data
+            String gps = json.getString("gps");
+            String[] latLng = gps.split(",");
+            displayText.append("GPS Coordinates:\n");
+            displayText.append("  Latitude: ").append(latLng[0]).append("\n");
+            displayText.append("  Longitude: ").append(latLng[1]).append("\n\n");
+
+            // Soil Parameters
+            displayText.append("Soil Parameters:\n");
+            displayText.append("  Moisture: ").append(json.getDouble("moisture")).append(" %\n");
+            displayText.append("  Temperature: ").append(json.getDouble("temp")).append(" °C\n");
+            displayText.append("  Salinity: ").append(json.getDouble("salinity")).append(" dS/m\n");
+            displayText.append("  pH: ").append(json.getDouble("ph")).append("\n\n");
+
+            // NPK Values
+            displayText.append("Nutrient Levels:\n");
+            displayText.append("  Nitrogen: ").append(json.getDouble("nitrogen")).append(" mg/kg\n");
+            displayText.append("  Phosphorus: ").append(json.getDouble("phosphorus")).append(" mg/kg\n");
+            displayText.append("  Potassium: ").append(json.getDouble("potassium")).append(" mg/kg\n");
+
+            runOnUiThread(() -> tvData.setText(displayText.toString()));
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing JSON data", e);
+            runOnUiThread(() -> tvData.setText("Error parsing data: " + e.getMessage()));
+        }
     }
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
@@ -209,14 +206,28 @@ public class MeasurementsPage extends AppCompatActivity implements DeviceListAda
             super.onConnectionStateChange(gatt, status, newState);
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                runOnUiThread(() -> statusText.setText("Connected - Discovering services..."));
-                bluetoothGatt.discoverServices();
+                Log.i(TAG, "Connected to GATT server");
+                updateStatus("Connected to " + targetDevice.getName());
+                connected = true;
+
+                // Discover services
+                runOnUiThread(() -> btnConnect.setText("Disconnect"));
+                btnConnect.setEnabled(true);
+
+                // Discover services after a small delay
+                new Handler().postDelayed(() -> {
+                    if (bluetoothGatt != null) {
+                        bluetoothGatt.discoverServices();
+                    }
+                }, 500);
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.i(TAG, "Disconnected from GATT server");
+                updateStatus("Disconnected");
+                connected = false;
                 runOnUiThread(() -> {
-                    statusText.setText("Disconnected");
-                    moistureText.setText("Moisture: --%");
-                    temperatureText.setText("Temperature: --°C");
-                    ecText.setText("EC: -- µS/cm");
+                    btnConnect.setText("Connect");
+                    btnConnect.setEnabled(true);
                 });
             }
         }
@@ -227,23 +238,34 @@ public class MeasurementsPage extends AppCompatActivity implements DeviceListAda
             super.onServicesDiscovered(gatt, status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.i(TAG, "Services discovered");
                 BluetoothGattService service = gatt.getService(SERVICE_UUID);
+
                 if (service != null) {
                     BluetoothGattCharacteristic characteristic = service.getCharacteristic(CHARACTERISTIC_UUID);
-                    if (characteristic != null) {
-                        boolean success = gatt.setCharacteristicNotification(characteristic, true);
-                        Log.d(TAG, "Notification set: " + success);
 
+                    if (characteristic != null) {
+                        // Enable notifications
+                        gatt.setCharacteristicNotification(characteristic, true);
+
+                        // Write to descriptor to enable notifications
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                                UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+                                UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")); // Standard CCCD UUID
                         if (descriptor != null) {
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                             gatt.writeDescriptor(descriptor);
                         }
 
-                        runOnUiThread(() -> statusText.setText("Connected to SoilMonitor"));
+                        updateStatus("Connected and ready to receive data");
+                    } else {
+                        updateStatus("Characteristic not found");
                     }
+                } else {
+                    updateStatus("Service not found");
                 }
+            } else {
+                Log.w(TAG, "onServicesDiscovered received: " + status);
+                updateStatus("Service discovery failed");
             }
         }
 
@@ -251,42 +273,23 @@ public class MeasurementsPage extends AppCompatActivity implements DeviceListAda
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
 
-            final String data = characteristic.getStringValue(0);
-            runOnUiThread(() -> updateUI(data));
+            if (CHARACTERISTIC_UUID.equals(characteristic.getUuid())) {
+                byte[] data = characteristic.getValue();
+                String jsonString = new String(data, StandardCharsets.UTF_8);
+                Log.i(TAG, "Received data: " + jsonString);
+
+                updateDataDisplay(jsonString);
+            }
         }
 
         @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-            super.onDescriptorWrite(gatt, descriptor, status);
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicRead(gatt, characteristic, status);
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.d(TAG, "Descriptor write successful");
+                Log.d(TAG, "Characteristic read: " + characteristic.getStringValue(0));
             }
         }
     };
-
-    private void updateUI(String data) {
-        try {
-            JSONObject json = new JSONObject(data);
-            double moisture = json.getDouble("moisture");
-            double temperature = json.getDouble("temperature");
-            double ec = json.getDouble("ec");
-
-            moistureText.setText(String.format("Moisture: %.1f%%", moisture));
-            temperatureText.setText(String.format("Temperature: %.1f°C", temperature));
-            ecText.setText(String.format("EC: %.1f µS/cm", ec));
-
-        } catch (JSONException e) {
-            Log.e(TAG, "Error parsing JSON", e);
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (scanning) {
-            stopScan();
-        }
-    }
 
     @SuppressLint("MissingPermission")
     @Override
@@ -298,8 +301,5 @@ public class MeasurementsPage extends AppCompatActivity implements DeviceListAda
             bluetoothGatt = null;
         }
     }
-
-
-
 
 }

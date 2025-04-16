@@ -35,12 +35,19 @@ dependencies {
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
-    implementation libs.firebase.auth
+    implementation libs.gridlayout
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
-    //implementation 'com.google.firebase:firebase-firestore:24.10.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    implementation platform('com.google.firebase:firebase-bom:32.7.2') // Use the latest version
+
+    // Use BoM-compatible dependencies (no version number needed)
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+
+    implementation 'no.nordicsemi.android:ble:2.6.1'
 }

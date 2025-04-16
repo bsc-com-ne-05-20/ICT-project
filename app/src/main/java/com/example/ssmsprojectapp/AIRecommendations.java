@@ -1,6 +1,7 @@
 package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -64,7 +65,7 @@ public class AIRecommendations extends AppCompatActivity {
         proceedButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(AIRecommendations.this, "Chatbot is not currently available", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(AIRecommendations.this, AgriChatbot.class));
             }
         });
     }

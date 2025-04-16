@@ -1,5 +1,6 @@
 package com.example.ssmsprojectapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -32,10 +33,11 @@ public class Login2 extends AppCompatActivity {
     private TextInputEditText email;
     private TextInputEditText password;
 
-    private Button signin;
+    private Button signin, register;
 
     private ProgressBar progressBar;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,8 +62,18 @@ public class Login2 extends AppCompatActivity {
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginUser();
+                //loginUser();
 
+                startActivity(new Intent(Login2.this, HomePage.class));
+
+            }
+        });
+
+        register = findViewById(R.id.registerBtn);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Login2.this, Login1.class));
             }
         });
     }

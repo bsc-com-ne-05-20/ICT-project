@@ -9,13 +9,16 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -26,6 +29,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
 //import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -34,7 +38,7 @@ import java.util.Map;
 public class HomePage extends AppCompatActivity {
 
     private FloatingActionButton fab;
-    private BottomNavigationView bottomNavigationView;
+    private LinearLayout home,chat,analytics,profile;
 
     //database
     //private FirebaseFirestore database;
@@ -59,36 +63,44 @@ public class HomePage extends AppCompatActivity {
 
         //add the home fragment on successful login
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_container,new HomeFragment());
+        transaction.add(R.id.container,new HomeFragment());
         transaction.commit();
 
-        //init fab
-        fab = findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
+        //init bottom nav
+        home = findViewById(R.id.nav_home);
+        home.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //open the bottom sheet
-
-                onOpenAddnewFarm();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container,new HomeFragment())
+                        .commit();
+            }
+        });
+        chat = findViewById(R.id.nav_chat);
+        chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               startActivity(new Intent(HomePage.this, AgriChatbot.class));
+            }
+        });
+        analytics = findViewById(R.id.nav_analytics);
+        analytics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, Graphs.class));
+            }
+        });
+        profile = findViewById(R.id.nav_profile);
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container,new AccountFragment())
+                        .commit();
             }
         });
 
 
-        //bottom navigation view inits
-        bottomNavigationView = findViewById(R.id.bottom_nav_view);
-
-        //display barges on the icons
-        BadgeDrawable badgeDrawable = bottomNavigationView.getOrCreateBadge(R.id.notifications);
-        badgeDrawable.setNumber(32);
-        badgeDrawable.setVisible(true);
-
-        BadgeDrawable badgeDrawable2 = bottomNavigationView.getOrCreateBadge(R.id.inventory);
-        badgeDrawable2.setNumber(202);
-        badgeDrawable2.setVisible(true);
-
-        BadgeDrawable badgeDrawable3 = bottomNavigationView.getOrCreateBadge(R.id.account);
-        badgeDrawable3.setNumber(1);
-        badgeDrawable3.setVisible(true);
     }
 
 
@@ -165,7 +177,7 @@ public class HomePage extends AppCompatActivity {
 
     }*/
 
-    /*public void readData(FirebaseFirestore db){
+    public void getFarmers(FirebaseFirestore db){
         db.collection("farms").document("Farm1")
                 .get()
                 .addOnSuccessListener(document -> {
@@ -176,7 +188,7 @@ public class HomePage extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.e("Firestore", "Error fetching data", e));
 
-    }*/
+    }
 
     /*public void updateData(FirebaseFirestore db){
         db.collection("farms").document("Farm1")

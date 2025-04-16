@@ -42,10 +42,10 @@ public class Login1 extends AppCompatActivity {
             public void onClick(View v) {
                 //add the logic for advisor or farmer
                 if (imAdvisor.isChecked()){
-                    startActivity(new Intent(Login1.this, Login2.class));
+                    startActivity(new Intent(Login1.this, RegisterCooperative.class));
                 } else if (imFarmer.isChecked()) {
-                    startActivity(new Intent(Login1.this, LoginFarmer.class));
-                } else if (imFarmer.isChecked() && imAdvisor.isChecked()) {
+                    startActivity(new Intent(Login1.this, RegisterFarmer.class));
+                } else if ((imFarmer.isChecked() )&& (imAdvisor.isChecked())) {
                     Snackbar.make(v,"You can not select both options",Snackbar.LENGTH_SHORT).show();
                 }
                 else {

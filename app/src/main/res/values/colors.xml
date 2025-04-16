@@ -3,9 +3,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="main_color">#1ba977</color>
-    <color name="yellow">#fee27a</color>
-    <color name="blue">#77c9cf</color>
-    <color name="inactive">#B0BEC5</color> <!-- Example color for inactive -->
-    <color name="active">#FF000000</color> <!-- Example color for active -->
+    <color name="main_color">#005005</color>
+    <color name="main_color_sub1">#2e7d32</color>
+    <color name="main_color_sub2">#60ad5e</color>
+    <color name="gray">#757575</color>
+
+    <color name="yellow">#FF9800</color>
+
 </resources>
