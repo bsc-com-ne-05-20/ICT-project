@@ -1,7 +1,5 @@
 package com.example.ssmsprojectapp.datamodels;
 
-import java.util.List;
-
 public class Farmer {
     private String id;  // Firestore document ID
     private String name;
@@ -11,11 +9,13 @@ public class Farmer {
     private String cooperativeId;  // Reference to cooperative instead of name
 
     // No longer storing farms list directly - we'll query them
-    public Farmer() {}  // Required for Firestore
+    public Farmer(){
 
-    public Farmer(String id, String name, String email, String phone,
+    }
+    public Farmer(String id, String name, String email, String phone, String location, String cooperativeId) {}  // Required for Firestore
+
+    public Farmer(String name, String email, String phone,
                   String location, String cooperativeId) {
-        this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;

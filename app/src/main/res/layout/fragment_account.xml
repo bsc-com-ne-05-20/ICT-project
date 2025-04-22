@@ -47,7 +47,7 @@
                     android:gravity="center"
                     android:textColor="@color/white"
                     android:textSize="22sp"
-                    android:text="Skyler Wirtz" />
+                    android:text="" />
 
                 <TextView
                     android:id="@+id/email"
@@ -57,7 +57,7 @@
                     android:textColor="#EAFFEB"
                     android:padding="5dp"
                     android:textSize="15sp"
-                    android:text="SkylerWirtz@gmail.com" />
+                    android:text="" />
                 <TextView
                     android:id="@+id/phone"
                     android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                     android:padding="5dp"
                     android:textColor="#EAFFEB"
                     android:textSize="15sp"
-                    android:text="0994400280" />
+                    android:text="" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -89,7 +89,7 @@
 
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler"
+                android:id="@+id/farms_recycler"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
         </HorizontalScrollView>
@@ -126,7 +126,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="5dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/location" />
+                android:src="@drawable/farmlocation" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -176,7 +176,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="5dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/land" />
+                android:src="@drawable/farmhouse" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -225,7 +225,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="5dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/cal" />
+                android:src="@drawable/crops" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -274,7 +274,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="5dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/atom" />
+                android:src="@drawable/schedule" />
 
             <LinearLayout
                 android:layout_width="match_parent"
