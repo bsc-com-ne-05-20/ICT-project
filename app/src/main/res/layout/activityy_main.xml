@@ -5,53 +5,73 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@drawable/shape2"
+    android:background="@color/white"
+    android:padding="12dp"
+    android:id="@+id/main"
     tools:context=".MainActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/chatView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:textSize="16sp" />
-    </ScrollView>
-
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp">
+        app:cardBackgroundColor="@color/main_color"
+        app:cardCornerRadius="5dp"
+        android:layout_margin="15dp">
 
-        <androidx.cardview.widget.CardView
+        <TextView
+            android:id="@+id/textView8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="15dp"
-            android:layout_marginStart="5dp"
-            android:padding="3dp"
-            android:layout_weight="@android:integer/config_longAnimTime">
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:text="Agri-Assistant"
+            android:padding="15dp"/>
+    </androidx.cardview.widget.CardView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messages_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_above="@+id/message_input_layout"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:scrollbars="vertical"/>
 
-            <EditText
-                android:id="@+id/inputField"
+    <LinearLayout
+        android:id="@+id/message_input_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#FFFFFF"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:counterEnabled="true"
+            app:boxStrokeColor="@color/main_color"
+            app:boxBackgroundColor="#F6FBF7"
+            android:hint="Ask here">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/message_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:hint="Type your question..."
-                android:imeOptions="actionSend"
-                android:inputType="textMultiLine"/>
-        </androidx.cardview.widget.CardView>
+                android:inputType="textMultiLine|textAutoComplete"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_weight="1"
-            android:text="Send" />
+        <ImageButton
+            android:id="@+id/send_button"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_gravity="bottom"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/baseline_send_24"
+            app:tint="@color/main_color" />
     </LinearLayout>
 </LinearLayout>

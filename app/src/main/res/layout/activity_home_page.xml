@@ -19,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            app:menu="@menu/toolbar_menu"
             app:title="SSMS"
             app:titleTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -118,7 +119,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    app:srcCompat="@drawable/profile" />
+                    app:srcCompat="@drawable/account" />
 
                 <TextView
                     android:layout_width="match_parent"

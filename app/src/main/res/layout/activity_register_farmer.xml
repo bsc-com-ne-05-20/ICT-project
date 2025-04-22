@@ -139,6 +139,14 @@
 
         </androidx.cardview.widget.CardView>
 
+        <ProgressBar
+            android:id="@+id/register_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"/>
+
         <Button
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:id="@+id/btn_registerFarmer"

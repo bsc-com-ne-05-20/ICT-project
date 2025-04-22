@@ -62,9 +62,9 @@ public class Login2 extends AppCompatActivity {
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //loginUser();
+                loginUser();
 
-                startActivity(new Intent(Login2.this, HomePage.class));
+                //startActivity(new Intent(Login2.this, HomePage.class));
 
             }
         });

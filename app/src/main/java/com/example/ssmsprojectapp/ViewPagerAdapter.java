@@ -17,7 +17,7 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     Context context;
 
-    int[] images = {R.drawable.page1, R.drawable.page2, R.drawable.page3, R.drawable.page4};
+    //int[] images = {R.drawable.page1, R.drawable.page2, R.drawable.page3, R.drawable.page4};
     int[] titles = {R.string.heading_one, R.string.heading_two, R.string.heading_three, R.string.heading_fourth};
     int[] descriptions = {R.string.desc_one, R.string.desc_two, R.string.desc_three, R.string.desc_fourth};
 
@@ -44,7 +44,7 @@ public class ViewPagerAdapter extends PagerAdapter {
         TextView title = view.findViewById(R.id.heading);
         TextView desc = view.findViewById(R.id.desc);
 
-        imageView.setImageResource(images[position]);
+        //imageView.setImageResource(images[position]);
         title.setText(titles[position]);
         desc.setText(descriptions[position]);
 

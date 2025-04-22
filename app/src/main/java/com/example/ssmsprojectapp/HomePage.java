@@ -26,13 +26,20 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.ssmsprojectapp.datamodels.Farm;
+import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
+import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 //import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HomePage extends AppCompatActivity {
@@ -41,7 +48,10 @@ public class HomePage extends AppCompatActivity {
     private LinearLayout home,chat,analytics,profile;
 
     //database
-    //private FirebaseFirestore database;
+    private FirestoreRepository repository;
+    private String currentFarmerId;
+    private String currentUsername;
+    private String selectedFarmId;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -56,14 +66,15 @@ public class HomePage extends AppCompatActivity {
         });
 
         //init all database stuff
-        //database = FirebaseFirestore.getInstance();
+        repository = new FirestoreRepository();
+        currentFarmerId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
         //init components
 
         //add the home fragment on successful login
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.container,new HomeFragment());
+        transaction.add(R.id.container,new HomeFragment(repository,currentFarmerId));
         transaction.commit();
 
         //init bottom nav
@@ -72,7 +83,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container,new HomeFragment())
+                        .replace(R.id.container,new HomeFragment(repository,currentFarmerId))
                         .commit();
             }
         });
@@ -95,7 +106,7 @@ public class HomePage extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container,new AccountFragment())
+                        .replace(R.id.container,new AccountFragment(repository,currentFarmerId))
                         .commit();
             }
         });
@@ -162,45 +173,42 @@ public class HomePage extends AppCompatActivity {
         builder.show();
     }
 
-    //database methods
 
-   /* public void write2Firestore(FirebaseFirestore db){
-        Map<String, Object> farm = new HashMap<>();
-        farm.put("owner", "John Doe");
-        farm.put("location", "Lilongwe, Malawi");
-        farm.put("soilPH", 6.5);
+    private void loadFarms() {
+        repository.getFarmsByFarmer(currentFarmerId, task -> {
+            if (task.isSuccessful()) {
+                List<Farm> farms = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    farms.add(repository.snapshotToFarm(document));
+                }
+                // Update UI with farms list
+                //updateFarmsListUI(farms);
 
-        db.collection("farms").document("Farm1")
-                .set(farm)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data added"))
-                .addOnFailureListener(e -> Log.e("Firestore", "Error adding data", e));
-
-    }*/
-
-    public void getFarmers(FirebaseFirestore db){
-        db.collection("farms").document("Farm1")
-                .get()
-                .addOnSuccessListener(document -> {
-                    if (document.exists()) {
-                        String owner = document.getString("owner");
-                        Log.d("Firestore", "Owner: " + owner);
-                    }
-                })
-                .addOnFailureListener(e -> Log.e("Firestore", "Error fetching data", e));
-
+                // If there are farms, select the first one by default
+                if (!farms.isEmpty()) {
+                    selectedFarmId = farms.get(0).getId();
+                    loadMeasurements(selectedFarmId);
+                }
+            } else {
+                Log.e("FarmerDashboard", "Error loading farms", task.getException());
+            }
+        });
     }
 
-    /*public void updateData(FirebaseFirestore db){
-        db.collection("farms").document("Farm1")
-                .update("soilPH", 7.2)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data updated"));
+    private void loadMeasurements(String farmId) {
+        repository.getMeasurementsByFarm(farmId, task -> {
+            if (task.isSuccessful()) {
+                List<Measurement> measurements = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    measurements.add(repository.snapshotToMeasurement(document));
+                }
+                // Update UI with measurements
+                //updateMeasurementsUI(measurements);
+            } else {
+                Log.e("FarmerDashboard", "Error loading measurements", task.getException());
+            }
+        });
+    }
 
-    }*/
 
-    /*public void deleteData(FirebaseFirestore db){
-        db.collection("farms").document("Farm1")
-                .delete()
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Data deleted"));
-
-    }*/
 }
