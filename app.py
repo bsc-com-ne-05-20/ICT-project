@@ -1,56 +1,58 @@
 import os
 from flask import Flask, request, jsonify
 import requests
-from dotenv import load_dotenv
-load_dotenv()
 
-api_key =""
 app = Flask(__name__)
 
-class Farmer_AgriGpt:
+class FarmerAgriGPT:
+    SYSTEM_PROMPT = "You are AgriGPT, an agriculture assistant. Provide expert advice on farming topics."
+
     def __init__(self, api_key):
         self.api_key = api_key
         self.base_url = "https://api.openai.com/v1/chat/completions"
 
-    def ask_soil_health(self, question):
+    def ask(self, messages):
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
         payload = {
             "model": "gpt-3.5-turbo",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are AgriGPT, an expert assistant for soil health, pH, nutrients, crop rotation, fertiliser application, and adviceadvice on agriculture best practices"
-                },
-                {"role": "user", "content": question}
-            ],
-            "max_tokens": 500,
+            "messages": [{"role": "system", "content": self.SYSTEM_PROMPT}] + messages,
             "temperature": 0.3
         }
         response = requests.post(self.base_url, headers=headers, json=payload)
-        return response.json()["choices"][0]["message"]["content"].strip() if response.status_code == 200 else f"Error: {response.text}"
+        return response.json()["choices"][0]["message"]["content"].strip()
 
-agrigpt = Farmer_AgriGpt(os.environ.get("OPENAI_API_KEY"))
+agrigpt = FarmerAgriGPT(os.environ["OPENAI_API_KEY"])  # Key from HF Secrets
+
+conversations = {}  # Stores chat history
 
 @app.route('/')
 def home():
-    return "AgriGPT API is running! Send POST requests to /ask with JSON {'question':'your_question'}"
+    return "Send POST requests to /ask with {'question': '...', 'session_id': 'optional'}"
 
 @app.route('/ask', methods=['POST'])
 def ask():
     try:
         data = request.get_json()
-        if not data or 'question' not in data:
-            return jsonify({"error": "Missing 'question' parameter"}), 400
-        
-        question = data['question']
-        response = agrigpt.ask_soil_health(question)
-        return jsonify({"response": response})
+        question = data.get('question')
+        session_id = data.get('session_id', 'default')
+
+        if not question:
+            return jsonify({"error": "Missing 'question'"}), 400
+
+        if session_id not in conversations:
+            conversations[session_id] = []
+
+        conversations[session_id].append({"role": "user", "content": question})
+        response = agrigpt.ask(conversations[session_id])
+        conversations[session_id].append({"role": "assistant", "content": response})
+
+        return jsonify({"response": response, "session_id": session_id})
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  # Matching Render's port
+    app.run(host='0.0.0.0', port=int(os.getenv("PORT", 8080)))
