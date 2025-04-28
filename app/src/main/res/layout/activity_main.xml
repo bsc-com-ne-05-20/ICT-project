@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Connection Status Display -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@color/light_gray">
+
+            <TextView
+                android:id="@+id/textViewConnectionStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Disconnected"
+                android:textColor="@color/red"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="12dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+        <!-- Connect/Disconnect Button -->
+        <Button
+            android:id="@+id/buttonConnectDisconnect"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Scan for Devices"
+            android:backgroundTint="@color/blue"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Person ID Input -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Person ID:"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/etPersonId"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Enter ID"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+        </LinearLayout>
+
+        <!-- Table Layout with Horizontal Scroll -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:scrollbars="horizontal">
+
+            <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <!-- Table Header with horizontal text alignment -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@color/light_gray">
+
+                    <!-- ID Column -->
+                    <TextView
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:text="ID"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- Temp Column -->
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:text="Temp(°C)"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- Salinity Column -->
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:text="Salinity"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- pH Column -->
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="match_parent"
+                        android:text="pH"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- Moisture Column -->
+                    <TextView
+                        android:layout_width="100dp"
+                        android:layout_height="match_parent"
+                        android:text="Moisture"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- NPK Column -->
+                    <TextView
+                        android:layout_width="150dp"
+                        android:layout_height="match_parent"
+                        android:text="NPK"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+
+                    <!-- Coordinates Column -->
+                    <TextView
+                        android:layout_width="150dp"
+                        android:layout_height="match_parent"
+                        android:text="Coordinates"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:padding="8dp"
+                        android:gravity="center_vertical|start"
+                        android:singleLine="true"/>
+                </TableRow>
+            </TableLayout>
+        </HorizontalScrollView>
+
+        <!-- Averages Display -->
+        <TextView
+            android:id="@+id/textViewAverages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Averages will appear here"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:padding="16dp"
+            android:background="@color/light_gray"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Coordinates Checkbox -->
+        <CheckBox
+            android:id="@+id/checkBoxIncludeCoordinates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Include GPS Coordinates in Database"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:padding="8dp"
+            android:buttonTint="@color/blue"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Action Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/buttonUploadData"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Upload"
+                android:backgroundTint="@color/blue"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:drawableStart="@drawable/ic_upload"
+                android:drawablePadding="8dp"/>
+
+            <Button
+                android:id="@+id/buttonCalculateAverages"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Averages"
+                android:backgroundTint="@color/orange"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                android:drawablePadding="8dp"/>
+
+            <Button
+                android:id="@+id/buttonClearData"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="Clear"
+                android:backgroundTint="@color/red"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:drawablePadding="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
