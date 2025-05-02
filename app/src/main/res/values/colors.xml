@@ -3,11 +3,11 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="main_color">#005005</color>
+    <color name="main_color">#13A05C</color>
     <color name="main_color_sub1">#2e7d32</color>
     <color name="main_color_sub2">#60ad5e</color>
     <color name="gray">#757575</color>
 
-    <color name="yellow">#FF9800</color>
+    <color name="yellow">#CE9B03</color>
 
 </resources>
