@@ -2,12 +2,16 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="notification"
+    <item
+        android:id="@+id/notify"
+        android:title="notification"
         android:icon="@drawable/baseline_notifications_24_white"
         android:iconTint="@color/white"
         app:showAsAction="ifRoom"/>
 
-    <item android:title="add"
+    <item
+        android:id="@+id/add"
+        android:title="add"
         android:icon="@drawable/baseline_add_circle_outline_24"
         android:iconTint="@color/white"
         app:showAsAction="ifRoom"/>

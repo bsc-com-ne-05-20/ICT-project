@@ -83,7 +83,7 @@
 
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
             android:layout_marginStart="15dp">
 
@@ -91,7 +91,8 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/farms_recycler"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
         </HorizontalScrollView>
 
         <Button
@@ -137,6 +138,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/farm_nam"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Thondwe estate"
@@ -196,6 +198,7 @@
                     android:padding="3dp"/>
 
                 <TextView
+                    android:id="@+id/size"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="8 acres"
@@ -205,6 +208,8 @@
                     android:padding="5dp"/>
             </LinearLayout>
         </LinearLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -236,7 +241,6 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/farm_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Primary crops"
@@ -246,6 +250,7 @@
                     android:padding="3dp"/>
 
                 <TextView
+                    android:id="@+id/farm_crops"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Maize,Soya beans"
@@ -262,47 +267,85 @@
             android:layout_marginEnd="15dp"
             android:background="@color/gray"/>
 
+
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:orientation="horizontal"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="5dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/schedule" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="5dp"
-                android:orientation="vertical">
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Last measurement"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_marginStart="5dp"
-                    android:padding="3dp"/>
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/schedule" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Yesterday,10:21 AM"
-                    android:textSize="15sp"
-                    android:textColor="@color/gray"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="5dp"
-                    android:padding="5dp"/>
+                    android:layout_marginTop="5dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Measurements"
+                        android:textSize="18sp"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/black"
+                        android:layout_marginStart="5dp"
+                        android:padding="3dp"/>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/baseline_keyboard_arrow_right_24" />
             </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="15dp">
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/measurements_recycler"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            </HorizontalScrollView>
+
+            <Button
+                android:id="@+id/btn_take_measurement"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:text="Take new measurement"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"/>
+
         </LinearLayout>
+
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="1dp"

@@ -177,7 +177,7 @@ public class FirestoreRepository {
         farmData.put("latitude", farm.getLatitude());
         farmData.put("longitude", farm.getLongitude());
         farmData.put("soilType", farm.getSoilType());
-        farmData.put("metals", farm.getMetals());
+        //farmData.put("metals", farm.getMetals());
 
         db.collection(FARMS_COL).document(farm.getId())
                 .update(farmData)
@@ -205,7 +205,11 @@ public class FirestoreRepository {
                 snapshot.getDouble("latitude"),
                 snapshot.getDouble("longitude"),
                 snapshot.getString("soilType"),
-                snapshot.getString("metals")
+                snapshot.getString("metals"),
+                snapshot.getString("farmName"),
+                snapshot.getString("farmSize"),
+                snapshot.getString("crops"),
+                snapshot.getString("location")
         );
     }
 

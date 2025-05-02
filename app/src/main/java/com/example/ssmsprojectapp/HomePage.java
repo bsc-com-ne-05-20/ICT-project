@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,13 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -51,7 +54,22 @@ public class HomePage extends AppCompatActivity {
     private FirestoreRepository repository;
     private String currentFarmerId;
     private String currentUsername;
-    private String selectedFarmId;
+    private String selectedFarmname;
+
+    private List<Measurement> measurements;
+
+    //toolbar
+    private Toolbar toolbar;
+    private static final int NOTIFICATIONS = R.id.notify;
+    private static final int ADD_FARM = R.id.add;
+
+    public HomePage(){
+
+    }
+    public HomePage(List<Measurement> measurements,String farmName){
+        this.measurements = measurements;
+        this.selectedFarmname = farmName;
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -64,6 +82,10 @@ public class HomePage extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        //init toolbar
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //init all database stuff
         repository = new FirestoreRepository();
@@ -174,25 +196,32 @@ public class HomePage extends AppCompatActivity {
     }
 
 
-    private void loadFarms() {
-        repository.getFarmsByFarmer(currentFarmerId, task -> {
-            if (task.isSuccessful()) {
-                List<Farm> farms = new ArrayList<>();
-                for (DocumentSnapshot document : task.getResult()) {
-                    farms.add(repository.snapshotToFarm(document));
-                }
-                // Update UI with farms list
-                //updateFarmsListUI(farms);
 
-                // If there are farms, select the first one by default
-                if (!farms.isEmpty()) {
-                    selectedFarmId = farms.get(0).getId();
-                    loadMeasurements(selectedFarmId);
-                }
-            } else {
-                Log.e("FarmerDashboard", "Error loading farms", task.getException());
-            }
-        });
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.notify) {
+            // Handle settings action
+           getSupportFragmentManager().beginTransaction()
+                   .replace(R.id.container,new NoficationsFragment())
+                   .commit();
+            return true;
+        } else if (id == R.id.add) {
+            // Handle search action
+            startActivity(new Intent(HomePage.this, MeasurementsPage.class));
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadMeasurements(String farmId) {

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ssmsprojectapp.datamodels.Farm;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -29,15 +30,17 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
         void onFarmClick(Farm farm);
     }
 
-    public FarmAdapter(List<Farm> farms) {
+    public FarmAdapter(List<Farm> farms,OnFarmClickListener listener) {
+
         this.farms = farms;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public FarmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.location_farm_item, parent, false);
+                .inflate(R.layout.farm_item, parent, false);
         return new FarmViewHolder(view);
     }
 
@@ -53,7 +56,7 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
         return farms.size();
     }
 
-    public void updateData(List<Farm> newFarms) {
+    public void updateFarmData(List<Farm> newFarms) {
         farms = newFarms;
         notifyDataSetChanged();
     }
@@ -64,44 +67,26 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
         private TextView metalsTextView;
 
         private TextView placeName;
-        private SupportMapFragment mapFragment;
+        private MapView mapView;
 
         public FarmViewHolder(@NonNull View itemView) {
             super(itemView);
-            //locationTextView = itemView.findViewById(R.id.farm_location);
-            //soilTypeTextView = itemView.findViewById(R.id.farm_soil_type);
-            //metalsTextView = itemView.findViewById(R.id.farm_metals);
+            locationTextView = itemView.findViewById(R.id.farm_location);
+            soilTypeTextView = itemView.findViewById(R.id.farm_soil_type);
+            metalsTextView = itemView.findViewById(R.id.farm_metals);
 
-            placeName = itemView.findViewById(R.id.placeName);
-            mapFragment = (SupportMapFragment) ((FragmentActivity) itemView.getContext())
-                    .getSupportFragmentManager().findFragmentById(R.id.map);
+
+
         }
 
-        /*public void bind(Farm farm) {
+
+
+        public void bind(Farm farm) {
             locationTextView.setText(String.format("Location: %.4f, %.4f", farm.getLatitude(), farm.getLongitude()));
             soilTypeTextView.setText(String.format("Soil Type: %s", farm.getSoilType()));
-            metalsTextView.setText(String.format("Metals: %s", farm.getMetals()));
-        }*/
-
-        void bind(Farm farm) {
-            //placeName.setText(location.getName());
-
-            if (mapFragment != null) {
-                mapFragment.getMapAsync(new OnMapReadyCallback() {
-                    @Override
-                    public void onMapReady(GoogleMap googleMap) {
-                        LatLng latLng = new LatLng(farm.getLatitude(), farm.getLongitude());
-                        googleMap.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(farm.getSoilType()));
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f));
-
-                        // Disable map interactions
-                        googleMap.getUiSettings().setScrollGesturesEnabled(false);
-                        googleMap.getUiSettings().setZoomGesturesEnabled(false);
-                    }
-                });
-            }
+            metalsTextView.setText("none");
         }
+
+
     }
 }
