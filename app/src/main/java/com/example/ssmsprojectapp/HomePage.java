@@ -179,20 +179,22 @@ public class HomePage extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle("Exit App")
-                .setMessage("Do want to exit the app?")
-                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Exit App");
+        builder.setMessage("Do want to exit the app?");
+        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         finish();
                     }
-                })
-                .setNegativeButton("No",null)
-                .setIcon(android.R.drawable.ic_dialog_alert);
+        });
+        builder.setNegativeButton("No",null);
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.show();
+
+        super.onBackPressed();
     }
 
 

@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment {
     private String currentFarmerId;
 
    private TextView farmerName;
-   private  TextView farmsnamesSpinner;
+   private  TextView farmName;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -116,9 +116,31 @@ public class HomeFragment extends Fragment {
 
         //init farmer and farm name
         farmerName = view.findViewById(R.id.farmer_name);
-        farmsnamesSpinner = view.findViewById(R.id.farm_name);
+
+        farmName= view.findViewById(R.id.farm_name);
+        farmName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFarmsDialog(v);
+            }
+        });
         return view;
 
+    }
+
+    private void openFarmsDialog(View v) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        builder.setTitle("Add New Farm");
+
+        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.home_farms_layout, null);
+        builder.setView(dialogView);
+
+        RecyclerView recyclerFarms = dialogView.findViewById(R.id.f_recycler);
+
+
+        builder.setNegativeButton("Cancel", null);
+        builder.setCancelable(true);
+        builder.show();
     }
 
     private void initStats(View view) {

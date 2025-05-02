@@ -1,14 +1,17 @@
 package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +37,7 @@ import java.util.List;
 
 public class AgriChatbot extends AppCompatActivity {
     private RecyclerView messagesRecyclerView;
-    private TextInputEditText messageInput;
+    private EditText messageInput;
     private ImageButton sendButton;
     private MessageAdapter messageAdapter;
     private List<Message> messages = new ArrayList<>();
@@ -69,6 +72,14 @@ public class AgriChatbot extends AppCompatActivity {
     private void initializeViews() {
         messagesRecyclerView = findViewById(R.id.messages_recycler_view);
         messageInput = findViewById(R.id.message_input);
+        //messageInput.requestFocus();
+
+
+        LinearLayout linearLayout = findViewById(R.id.message_input_layout);
+        linearLayout.requestFocus();
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.showSoftInput(linearLayout,InputMethodManager.SHOW_IMPLICIT);
+
         sendButton = findViewById(R.id.send_button);
     }
 

@@ -84,6 +84,7 @@
                 android:textAlignment="center"
                 android:textSize="15sp"
                 android:text="Bunda estate"
+                android:drawableEnd="@drawable/baseline_arrow_drop_down_24"
                 />
         </androidx.cardview.widget.CardView>
 

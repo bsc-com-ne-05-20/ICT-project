@@ -1,77 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:background="@color/white"
     android:padding="12dp"
     android:id="@+id/main"
-    tools:context=".MainActivity">
+    tools:context=".AgriChatbot">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/main_color"
-        app:cardCornerRadius="5dp"
-        android:layout_margin="15dp">
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textSize="20dp"
-            android:text="Agri-Assistant"
-            android:padding="15dp"/>
-    </androidx.cardview.widget.CardView>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/messages_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_above="@+id/message_input_layout"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        android:scrollbars="vertical"/>
 
     <LinearLayout
-        android:id="@+id/message_input_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#FFFFFF"
-        android:orientation="horizontal"
-        android:padding="10dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/main_color"
+            app:cardCornerRadius="5dp"
+            android:layout_margin="15dp">
 
-        <com.google.android.material.textfield.TextInputLayout
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:textSize="20dp"
+                android:text="Agri-Assistant"
+                android:padding="15dp"/>
+        </androidx.cardview.widget.CardView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/messages_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            app:counterEnabled="true"
-            app:boxStrokeColor="@color/main_color"
-            app:boxBackgroundColor="#F6FBF7"
-            android:hint="Ask here">
+            android:layout_above="@+id/message_input_layout"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp"
+            android:scrollbars="vertical"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/message_input"
+        <LinearLayout
+            android:id="@+id/message_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#FFFFFF"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine|textAutoComplete"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1"
+                app:cardCornerRadius="5dp"
+                android:layout_gravity="center_vertical">
 
-        <ImageButton
-            android:id="@+id/send_button"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_gravity="bottom"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/baseline_send_24"
-            app:tint="@color/main_color" />
+                <EditText
+                    android:id="@+id/message_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="ask here"
+                    android:padding="10dp"
+                    android:textSize="15sp"
+                    android:background="@android:color/transparent"
+                    android:textColor="@color/black"
+                    android:inputType="textMultiLine" />
+            </androidx.cardview.widget.CardView>
+
+            <ImageButton
+                android:id="@+id/send_button"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_gravity="bottom"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/baseline_send_24"
+                app:tint="@color/main_color" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>
