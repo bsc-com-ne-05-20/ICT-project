@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ssmsprojectapp.datamodels.Farm;
 import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
+import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +41,7 @@ public class HomeFragment extends Fragment {
    private RecyclerViewAdapter rAdapter;
    private RecyclerView recyclerView;
 
+   private HomeFarmAdapter homeFarmAdapter;
    private TextView seeAll;
    private Button recommendations;
 
@@ -46,6 +50,8 @@ public class HomeFragment extends Fragment {
 
    private TextView farmerName;
    private  TextView farmName;
+
+    private String selectedFarmId,selectedFarmName;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -75,17 +81,6 @@ public class HomeFragment extends Fragment {
             farmerName.setText(name);
         }
 
-        //init and set up the spinner
-        //farmsnamesSpinner = view.findViewById(R.id.farm_name);
-        List<String> categories = new ArrayList<>();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, categories);
-
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        // Apply the adapter to the spinner
-        //farmsnamesSpinner.setAdapter(adapter);
 
 
         recyclerView = view.findViewById(R.id.recycler);
@@ -117,6 +112,10 @@ public class HomeFragment extends Fragment {
         //init farmer and farm name
         farmerName = view.findViewById(R.id.farmer_name);
 
+        homeFarmAdapter = new HomeFarmAdapter(new ArrayList<>(), this::onFarmSelected);
+        //load farms
+        loadFarms(view);
+
         farmName= view.findViewById(R.id.farm_name);
         farmName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,19 +129,81 @@ public class HomeFragment extends Fragment {
 
     private void openFarmsDialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-        builder.setTitle("Add New Farm");
 
         View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.home_farms_layout, null);
         builder.setView(dialogView);
 
         RecyclerView recyclerFarms = dialogView.findViewById(R.id.f_recycler);
+        recyclerFarms.setLayoutManager(new LinearLayoutManager(v.getContext(),LinearLayoutManager.VERTICAL,false));
+        recyclerFarms.setAdapter(homeFarmAdapter);
 
+        loadFarms(v);
 
         builder.setNegativeButton("Cancel", null);
         builder.setCancelable(true);
         builder.show();
     }
 
+    private void onFarmSelected(Farm farm) {
+
+        selectedFarmId = farm.getId();
+        selectedFarmName = farm.getFarmName();
+
+
+        //update ui
+
+        requireActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                farmName.setText(selectedFarmName);
+
+            }
+        });
+
+        loadMeasurements(selectedFarmId);
+
+    }
+    private void loadFarms(View view) {
+        //showProgress(true);
+        repository.getFarmsByFarmer(currentFarmerId, task -> {
+            //showProgress(false);
+            if (task.isSuccessful()) {
+                List<Farm> farms = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    farms.add(repository.snapshotToFarm(document));
+                }
+
+                homeFarmAdapter.updateFarmData(farms);
+
+                // Select first farm by default if available
+                if (!farms.isEmpty()) {
+                    onFarmSelected(farms.get(0));
+                }
+            } else {
+                Toast.makeText(view.getContext(), "Failed to load farms: " + task.getException().getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadMeasurements(String farmId) {
+        repository.getMeasurementsByFarm(farmId, task -> {
+            if (task.isSuccessful()) {
+                List<Measurement> measurements = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    measurements.add(repository.snapshotToMeasurement(document));
+                }
+                // Update UI with measurements
+                //change the recyclerView data here
+                //measurementsAdapter.updateData(measurements);
+                //new HomePage(measurements,farmName);
+
+
+            } else {
+                Log.e("FarmerDashboard", "Error loading measurements", task.getException());
+            }
+        });
+    }
     private void initStats(View view) {
 
     }
