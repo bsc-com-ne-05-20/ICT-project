@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHARS Ui</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    
+<!-- phone frame -->
+<div class="mobile-frame">
+    <!-- top bar -->
+    <div class="status-bar">
+        <span>13:21</span>
+        <span>SHARS</span>
+        <span>100% <i class="fas fa-battery-full"></i></span>
+    </div>
+
+    <!-- application header -->
+    <div class="app-header">
+        <div class="header-title">SHARS</div>
+        <div class="header-icon"><i class="fas fa-bell"></i></div>
+    </div>
+
+    <!-- home screen content area -->
+    <div class="content" id="dashboard-page">
+        <div class="welcome-card fade-in">
+            <div class="welcome-title">Hello, Mbeki!</div>
+            <div class="welcome-subtitle">Here's your soil health summary for THONDWE FARM</div>
+        </div>
+
+        <div class="section-title">Current Soil Conditions</div>
+        <div class="sensor-grid">
+            <div class="sensor-card fade-in">
+                <div class="sensor-header">
+                    <div class="sensor-icon"><i class="fas fa-flask"></i></div>
+                    <div class="sensor-name">pH Level</div>
+                </div>
+                <div class="sensor-value">6.8</div>
+                <div class="sensor-unit">pH</div>
+                <div class="sensor-status status-optimal">Optimal</div>
+            </div>
+
+            <div class="sensor-card fade-in">
+                <div class="sensor-header">
+                    <div class="sensor-icon"><i class="fas fa-tint"></i></div>
+                    <div class="sensor-name">Moisture</div>
+                </div>
+                <div class="sensor-value">45</div>
+                <div class="sensor-unit">%</div>
+                <div class="sensor-status status-optimal">Good</div>
+            </div>
+
+            <div class="sensor-card fade-in">
+                <div class="sensor-header">
+                    <div class="sensor-icon"><i class="fas fa-thermometer-half"></i></div>
+                    <div class="sensor-name">Temperature</div>
+                </div>
+                <div class="sensor-value">24</div>
+                <div class="sensor-unit">°C</div>
+                <div class="sensor-status status-optimal">Normal</div>
+            </div>
+
+            <div class="sensor-card fade-in">
+                <div class="sensor-header">
+                    <div class="sensor-icon"><i class="fas fa-seedling"></i></div>
+                    <div class="sensor-name">Nitrogen</div>
+                </div>
+                <div class="sensor-value">15</div>
+                <div class="sensor-unit">ppm</div>
+                <div class="sensor-status status-low">Low</div>
+            </div>
+        </div>
+
+        <!-- recent measurements -->
+        <button class="recent-measurements-btn" onclick="showMeasurementsModal()">
+            <i class="fas fa-history"></i> View Recent Measurements
+        </button>
+
+        <div class="section-title">Recommendations</div>
+        <div class="recommendation-card fade-in">
+            <div class="recommendation-title"><i class="fas fa-lightbulb"></i> Soil Improvement</div>
+            <div class="recommendation-text">Add potassium-rich fertilizer (20kg/acre) to optimize crop growth.</div>
+        </div>
+
+        <div class="recommendation-card fade-in">
+            <div class="recommendation-title"><i class="fas fa-cloud-sun-rain"></i> Watering</div>
+            <div class="recommendation-text">Maintain current watering schedule based on soil moisture levels.</div>
+        </div>
+
+        <div class="recommendation-card fade-in">
+            <div class="recommendation-title"><i class="fas fa-leaf"></i> Crop Suggestion</div>
+            <div class="recommendation-text">Maize (92% match), Beans (88% match), Kale (85% match).</div>
+        </div>
+
+        <div class="measurements-modal" id="measurements-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Recent Measurements</div>
+                    <button class="modal-close" onclick="hideMeasurementsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="measurements-list">
+                    <div class="measurement-item">
+                        <div class="measurement-date">Today, 10:30 AM</div>
+                        <div class="measurement-values">
+                            <span class="measurement-value">pH: 6.8</span>
+                            <span class="measurement-value">Moisture: 45%</span>
+                            <span class="measurement-value">Temp: 24°C</span>
+                            <span class="measurement-value">N: 15ppm</span>
+                        </div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-date">Yesterday, 4:15 PM</div>
+                        <div class="measurement-values">
+                            <span class="measurement-value">pH: 6.7</span>
+                            <span class="measurement-value">Moisture: 42%</span>
+                            <span class="measurement-value">Temp: 23°C</span>
+                            <span class="measurement-value">N: 14ppm</span>
+                        </div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-date">Yesterday, 10:00 AM</div>
+                        <div class="measurement-values">
+                            <span class="measurement-value">pH: 6.6</span>
+                            <span class="measurement-value">Moisture: 40%</span>
+                            <span class="measurement-value">Temp: 22°C</span>
+                            <span class="measurement-value">N: 13ppm</span>
+                        </div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-date">2 days ago, 4:30 PM</div>
+                        <div class="measurement-values">
+                            <span class="measurement-value">pH: 6.5</span>
+                            <span class="measurement-value">Moisture: 38%</span>
+                            <span class="measurement-value">Temp: 21°C</span>
+                            <span class="measurement-value">N: 12ppm</span>
+                        </div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-date">3 days ago, 11:00 AM</div>
+                        <div class="measurement-values">
+                            <span class="measurement-value">pH: 6.4</span>
+                            <span class="measurement-value">Moisture: 35%</span>
+                            <span class="measurement-value">Temp: 20°C</span>
+                            <span class="measurement-value">N: 10ppm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- analytics screen -->
+    <div class="content hidden" id="sensor-page">
+        <div class="sensor-detail-header">
+            <div class="sensor-detail-icon"><i class="fas fa-flask"></i></div>
+            <div class="sensor-detail-name">pH Level</div>
+            <div class="sensor-detail-value">6.8</div>
+            <div class="sensor-detail-unit">pH</div>
+            <div class="sensor-detail-status status-optimal">Optimal (6.0-7.0)</div>
+        </div>
+
+        <div class="chart-container">
+            <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--gray);">
+                pH Level Trend Chart
+            </div>
+        </div>
+
+        <div class="section-title">About pH Level</div>
+        <div class="recommendation-card">
+            <div class="recommendation-text">
+                pH measures soil acidity/alkalinity on a scale of 0-14. Most crops prefer slightly acidic soil (pH 6.0-7.0).
+                Your soil pH is in the optimal range for most common crops.
+            </div>
+        </div>
+
+        <div class="section-title">Management Tips</div>
+        <div class="recommendation-card">
+            <div class="recommendation-text">
+                • Maintain current practices as pH is optimal<br>
+                • Test pH every 3-6 months<br>
+                • If adjustment needed, use lime to raise pH or sulfur to lower pH
+            </div>
+        </div>
+    </div>
+
+    <!-- chatbot or assistant screen -->
+    <div class="content hidden" id="chatbot-page">
+        <div class="chatbot-header">
+            <div class="chatbot-back" onclick="showPage('dashboard')"><i class="fas fa-arrow-left"></i></div>
+            <div class="chatbot-title">Soil Expert Assistant</div>
+        </div>
+
+        <div class="chatbot-messages">
+            <div class="message bot-message">
+                Hello! I'm your SSMS assistant. How can I help you with your soil management today?
+            </div>
+            <div class="message user-message">
+                How can I improve my soil nitrogen?
+            </div>
+            <div class="message bot-message">
+                Based on your current nitrogen level (15 ppm), I recommend:
+                1. Adding organic compost
+                2. Planting legumes in your next rotation
+                3. Applying nitrogen-rich fertilizer (20kg/acre)
+            </div>
+        </div>
+
+        <div class="chatbot-input">
+            <input type="text" placeholder="Ask about your soil...">
+            <button><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- profile screen -->
+    <div class="content hidden" id="profile-page">
+        <div class="profile-header">
+            <div class="profile-avatar">ML</div>
+            <div class="profile-name">Mbeki Longwe</div>
+            <div class="profile-email">mbekilongwe@gmail.com</div>
+        </div>
+
+        <!-- farm selection -->
+        <div class="profile-section">
+            <div class="profile-section-title">Farm Management</div>
+            <div class="farm-selector">
+                <select class="farm-dropdown" id="farm-selector">
+                    <option value="farm1">Thondwe Farm (Current)</option>
+                    <option value="farm2">Lirangwe Fields</option>
+                    <option value="farm3">Zomba Plateau</option>
+                </select>
+                <button class="add-farm-btn" onclick="showAddFarmForm()">
+                    <i class="fas fa-plus"></i> Add New Farm
+                </button>
+            </div>
+        </div>
+
+        <!-- new farm form -->
+        <div class="farm-form hidden" id="farm-form">
+            <div class="form-group">
+                <label>Farm Name</label>
+                <input type="text" id="farm-name" placeholder="Enter farm name">
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="farm-location" placeholder="Enter farm location">
+            </div>
+            <div class="form-group">
+                <label>Size (acres)</label>
+                <input type="number" id="farm-size" placeholder="Enter farm size">
+            </div>
+            <div class="form-group">
+                <label>Primary Crop</label>
+                <input type="text" id="farm-crop" placeholder="Enter primary crop">
+            </div>
+            <div class="farm-form-buttons">
+                <button class="cancel-farm-btn" onclick="hideAddFarmForm()">Cancel</button>
+                <button class="save-farm-btn" onclick="saveNewFarm()">Save Farm</button>
+            </div>
+        </div>
+
+        <!-- farm information section -->
+        <div class="profile-section">
+            <div class="profile-section-title">Current Farm Information</div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Thondwe Farm</div>
+                    <div class="profile-item-subtitle">Zomba, Malawi</div>
+                </div>
+                <span class="current-farm-indicator">Current</span>
+            </div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-ruler-combined"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Farm Size</div>
+                    <div class="profile-item-subtitle">8 acres</div>
+                </div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-seedling"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Primary Crops</div>
+                    <div class="profile-item-subtitle">Maize, Beans, Soybeans</div>
+                </div>
+            </div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Last Measurement</div>
+                    <div class="profile-item-subtitle">Today, 10:30 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- account settings section -->
+        <div class="profile-section">
+            <div class="profile-section-title">Account Settings</div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-bell"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Notifications</div>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Privacy & Security</div>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="profile-item">
+                <div class="profile-item-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="profile-item-text">
+                    <div class="profile-item-title">Logout</div>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- bottom navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('dashboard')">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <div>Home</div>
+        </div>
+        <div class="nav-item" onclick="showPage('chatbot')">
+            <div class="nav-icon"><i class="fas fa-robot"></i></div>
+            <div>Chat</div>
+        </div>
+        <div class="nav-item" onclick="showPage('sensor')">
+            <div class="nav-icon"><i class="fas fa-chart-line"></i></div>
+            <div>Analytics</div>
+        </div>
+        <div class="nav-item" onclick="showPage('profile')">
+            <div class="nav-icon"><i class="fas fa-user"></i></div>
+            <div>Profile</div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
