@@ -1,6 +1,7 @@
 package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,11 +35,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-   private RecyclerViewAdapter rAdapter;
+   private MeasurementsAdapter farmMeasurementRAdapter;
    private RecyclerView recyclerView;
 
    private HomeFarmAdapter homeFarmAdapter;
@@ -52,6 +54,11 @@ public class HomeFragment extends Fragment {
    private  TextView farmName;
 
     private String selectedFarmId,selectedFarmName;
+
+    //the progress bar
+    private ProgressDialog progressDialog;
+    private AlertDialog alertDialog;
+    private AlertDialog.Builder builder;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -78,16 +85,17 @@ public class HomeFragment extends Fragment {
             String email = user.getEmail();        // Farmer's email
             String name = user.getDisplayName();   // Farmer's name
             String uid = user.getUid();// Unique user ID
-            farmerName.setText(name);
+            farmerName.setText("Hi " + name);
         }
+        TextView greeting = view.findViewById(R.id.greeting_text);
+        greeting.setText(getMessage());
 
 
-
+        //farm measurements recyclerView
         recyclerView = view.findViewById(R.id.recycler);
-        rAdapter = new RecyclerViewAdapter();
-
+        farmMeasurementRAdapter = new MeasurementsAdapter(new ArrayList<>());
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,false));
-        recyclerView.setAdapter(rAdapter);
+        recyclerView.setAdapter(farmMeasurementRAdapter);
 
 
         //init recommendations button
@@ -139,9 +147,24 @@ public class HomeFragment extends Fragment {
 
         loadFarms(v);
 
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dismissAlertDialog();
+            }
+        });
         builder.setNegativeButton("Cancel", null);
         builder.setCancelable(true);
-        builder.show();
+
+        // Create the AlertDialog object and show it
+        alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void dismissAlertDialog() {
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
     }
 
     private void onFarmSelected(Farm farm) {
@@ -155,6 +178,7 @@ public class HomeFragment extends Fragment {
         requireActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 farmName.setText(selectedFarmName);
 
             }
@@ -162,11 +186,19 @@ public class HomeFragment extends Fragment {
 
         loadMeasurements(selectedFarmId);
 
+        //dimiss the dialog
+        //dismissAlertDialog();
     }
     private void loadFarms(View view) {
-        //showProgress(true);
+
+        //show progress dialog
+        showProgress(view);
+
         repository.getFarmsByFarmer(currentFarmerId, task -> {
-            //showProgress(false);
+
+            //dismiss the dialog
+            progressDialog.dismiss();
+
             if (task.isSuccessful()) {
                 List<Farm> farms = new ArrayList<>();
                 for (DocumentSnapshot document : task.getResult()) {
@@ -195,7 +227,7 @@ public class HomeFragment extends Fragment {
                 }
                 // Update UI with measurements
                 //change the recyclerView data here
-                //measurementsAdapter.updateData(measurements);
+                farmMeasurementRAdapter.updateData(measurements);
                 //new HomePage(measurements,farmName);
 
 
@@ -225,5 +257,36 @@ public class HomeFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    //the m
+    private String getMessage() {
+        String message = "good day";
+        Calendar calendar = Calendar.getInstance();
+        int time = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (time >= 0 && time < 12){
+            message = "Good morning";
+        }
+        else if (time >= 12 && time < 16){
+            message = "Good afternoon";
+        }
+        else if (time >= 16 && time < 20){
+            message = "Good evening";
+        }
+        else {
+            message = "Good night";
+        }
+
+        return message;
+    }
+
+    private void showProgress(View view){
+        progressDialog = new ProgressDialog(view.getContext());
+        progressDialog.setMessage("Loading farms..."); // Set message
+        progressDialog.setTitle("Please wait"); // Set title
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // or STYLE_HORIZONTAL
+        progressDialog.setCancelable(false); // Optional - prevent dismissing by tapping outside
+        progressDialog.show();
     }
 }
