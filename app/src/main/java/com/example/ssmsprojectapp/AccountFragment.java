@@ -204,7 +204,7 @@ public class AccountFragment extends Fragment {
                 // Update UI with measurements
                 //change the recyclerView data here
                 measurementsAdapter.updateData(measurements);
-                new HomePage(measurements,farmName);
+                //new HomePage(measurements,farmName);
 
 
             } else {
