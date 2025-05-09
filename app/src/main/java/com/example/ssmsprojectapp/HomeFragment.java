@@ -53,6 +53,8 @@ public class HomeFragment extends Fragment {
    private TextView farmerName;
    private  TextView farmName;
 
+   //measurements values textviews
+    private TextView salinity_val,moisture_val,ph_val,nitrogen_val,phosphorous_val,potassium_val;
     private String selectedFarmId,selectedFarmName;
 
     //the progress bar
@@ -96,6 +98,17 @@ public class HomeFragment extends Fragment {
         farmMeasurementRAdapter = new MeasurementsAdapter(new ArrayList<>());
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,false));
         recyclerView.setAdapter(farmMeasurementRAdapter);
+
+        //init the measurejents value text views
+        //these will be updated when the measurements for a farm have been loaded
+
+        salinity_val = view.findViewById(R.id.salinity_value);
+        moisture_val = view.findViewById(R.id.moisture_value);
+        ph_val = view.findViewById(R.id.ph_value);
+        nitrogen_val = view.findViewById(R.id.nitrogen_value);
+        phosphorous_val = view.findViewById(R.id.phosphorous_value);
+        potassium_val = view.findViewById(R.id.potassium_value);
+
 
 
         //init recommendations button
@@ -225,10 +238,26 @@ public class HomeFragment extends Fragment {
                 for (DocumentSnapshot document : task.getResult()) {
                     measurements.add(repository.snapshotToMeasurement(document));
                 }
-                // Update UI with measurements
+
                 //change the recyclerView data here
                 farmMeasurementRAdapter.updateData(measurements);
                 //new HomePage(measurements,farmName);
+
+                //getting the latest measurement
+                Measurement latestMeasurement = measurements.get(0);
+
+                // Update UI with measurements
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        salinity_val.setText(latestMeasurement.getSalinity() +"");
+                        moisture_val.setText(latestMeasurement.getMoisture() +"");
+                        ph_val.setText(latestMeasurement.getPh() +"");
+                        nitrogen_val.setText(latestMeasurement.getNitrogen() +"");
+                        phosphorous_val.setText(latestMeasurement.getPhosphorus() +"");
+                        potassium_val.setText(latestMeasurement.getPotassium() +"");
+                    }
+                });
 
 
             } else {

@@ -7,6 +7,7 @@
     tools:context=".HomeFragment">
 
     <LinearLayout
+        android:id="@+id/homepage_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -148,10 +149,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/salinity_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="0.0"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -219,10 +220,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/moisture_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="0.0"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -290,10 +291,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/ph_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="24"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -361,10 +362,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/nitrogen_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="15"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -432,10 +433,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/phosphorous_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="54"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
@@ -502,10 +503,10 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/potassium_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
-                        android:text="0.0"
                         android:textColor="@color/black"
                         android:textSize="25sp"
                         android:textStyle="bold" />
