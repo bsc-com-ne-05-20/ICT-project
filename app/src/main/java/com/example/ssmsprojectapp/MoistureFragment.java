@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -27,9 +28,14 @@ import java.util.Locale;
 public class MoistureFragment extends Fragment {
 
     private LineChart moistureChart;
+    private List<Measurement> measurementList;
 
     public MoistureFragment() {
         // Required empty public constructor
+    }
+
+    public  MoistureFragment(List<Measurement> measurements){
+        this.measurementList = measurements;
     }
 
     @Override
@@ -74,13 +80,17 @@ public class MoistureFragment extends Fragment {
     }
 
     private void loadMoistureData() {
-        // Example data - replace with your actual data loading logic
+
         List<Entry> entries = new ArrayList<>();
+        //load the data from the measurements
+        for (Measurement measurement: measurementList) {
+            entries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getMoisture()));
+        }
 
         // Add sample data (x = timestamp, y = moisture %)
-        entries.add(new Entry(System.currentTimeMillis() - 86400000*2, 45f)); // 2 days ago
-        entries.add(new Entry(System.currentTimeMillis() - 86400000, 52f));   // 1 day ago
-        entries.add(new Entry(System.currentTimeMillis(), 48f));               // now
+        //entries.add(new Entry(System.currentTimeMillis() - 86400000*2, 45f)); // 2 days ago
+        //entries.add(new Entry(System.currentTimeMillis() - 86400000, 52f));   // 1 day ago
+        //entries.add(new Entry(System.currentTimeMillis(), 48f));               // now
 
         LineDataSet dataSet = new LineDataSet(entries, "Soil Moisture (%)");
         dataSet.setColor(Color.BLUE);

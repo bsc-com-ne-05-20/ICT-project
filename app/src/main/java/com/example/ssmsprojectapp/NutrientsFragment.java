@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -30,9 +31,14 @@ import java.util.Locale;
 public class NutrientsFragment extends Fragment {
 
     private CombinedChart nutrientsChart;
+    private List<Measurement> measurementList;
 
     public NutrientsFragment() {
         // Required empty public constructor
+    }
+
+    public NutrientsFragment(List<Measurement> measurements) {
+         this.measurementList = measurements;
     }
 
 
@@ -75,9 +81,15 @@ public class NutrientsFragment extends Fragment {
 
         // Line data for Nitrogen
         List<Entry> nitrogenEntries = new ArrayList<>();
-        nitrogenEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 12f));
-        nitrogenEntries.add(new Entry(System.currentTimeMillis() - 86400000, 15f));
-        nitrogenEntries.add(new Entry(System.currentTimeMillis(), 14f));
+
+        //load the data from the measurements
+        for (Measurement measurement: measurementList) {
+            nitrogenEntries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getNitrogen()));
+        }
+
+        //nitrogenEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 12f));
+        //nitrogenEntries.add(new Entry(System.currentTimeMillis() - 86400000, 15f));
+        //nitrogenEntries.add(new Entry(System.currentTimeMillis(), 14f));
 
         LineDataSet nitrogenSet = new LineDataSet(nitrogenEntries, "Nitrogen (ppm)");
         nitrogenSet.setColor(Color.parseColor("#4CAF50"));
@@ -87,9 +99,14 @@ public class NutrientsFragment extends Fragment {
 
         // Line data for Phosphorus
         List<Entry> phosphorusEntries = new ArrayList<>();
-        phosphorusEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 8f));
-        phosphorusEntries.add(new Entry(System.currentTimeMillis() - 86400000, 10f));
-        phosphorusEntries.add(new Entry(System.currentTimeMillis(), 9f));
+        //load the data from the measurements
+        for (Measurement measurement: measurementList) {
+            phosphorusEntries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getPhosphorus()));
+        }
+
+        //phosphorusEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 8f));
+        //phosphorusEntries.add(new Entry(System.currentTimeMillis() - 86400000, 10f));
+        //phosphorusEntries.add(new Entry(System.currentTimeMillis(), 9f));
 
         LineDataSet phosphorusSet = new LineDataSet(phosphorusEntries, "Phosphorus (ppm)");
         phosphorusSet.setColor(Color.parseColor("#FF9800"));
@@ -99,9 +116,14 @@ public class NutrientsFragment extends Fragment {
 
         // Line data for Potassium
         List<Entry> potassiumEntries = new ArrayList<>();
-        potassiumEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 25f));
-        potassiumEntries.add(new Entry(System.currentTimeMillis() - 86400000, 28f));
-        potassiumEntries.add(new Entry(System.currentTimeMillis(), 26f));
+        //load the data from the measurements
+        for (Measurement measurement: measurementList) {
+            potassiumEntries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getPotassium()));
+        }
+
+        //potassiumEntries.add(new Entry(System.currentTimeMillis() - 86400000*2, 25f));
+        //potassiumEntries.add(new Entry(System.currentTimeMillis() - 86400000, 28f));
+        //potassiumEntries.add(new Entry(System.currentTimeMillis(), 26f));
 
         LineDataSet potassiumSet = new LineDataSet(potassiumEntries, "Potassium (ppm)");
         potassiumSet.setColor(Color.parseColor("#2196F3"));
