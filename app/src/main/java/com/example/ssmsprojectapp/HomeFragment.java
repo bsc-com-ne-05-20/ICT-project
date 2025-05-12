@@ -274,7 +274,19 @@ public class HomeFragment extends Fragment {
                             potassium_val.setText(latestMeasurement.getPotassium() +"");
                         }
                     });
+
+                    //load the measurements to the visualisation fragments
+                    new SalinityFragment(measurements);
+                    new TemperatureFragment(measurements);
+                    new NutrientsFragment(measurements);
+                    new MoistureFragment(measurements);
+                    new MetalsFragment(measurements);
+
                 }
+                //add else to handle the case where the farm is just created and there is no measurements yet
+
+
+
 
 
             } else {
