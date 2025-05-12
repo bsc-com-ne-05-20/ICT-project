@@ -1,70 +1,138 @@
-import random
-import numpy as np
-import json
-import pickle
-import tensorflow as tf
-import nltk
-from nltk.stem import WordNetLemmatizer
+import os
+from flask import Flask, request, jsonify
+import requests
+from dotenv import load_dotenv
 
-lemmatizer = WordNetLemmatizer()
+load_dotenv()  # Load environment variables from .env file
 
-intents = json.loads(open('intents.json').read())
+app = Flask(__name__)
 
-words = []
-classes = []
-documents = []
-ignore_letters = ['/',';','?','!',',','@','^',')']
+class Farmer_AgriGpt:
+    def __init__(self, api_key):
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY is required in .env file")
+        self.api_key = api_key
+        self.base_url = "https://api.openai.com/v1/chat/completions"
 
-for intent in intents['intents']:
-    for pattern in intent['patterns']:
-        word_list = nltk.word_tokenize(pattern)
-        words.extend(word_list)
-        documents.append((word_list, intent['tag']))
-        if intent['tag'] not in classes:
-            classes.append(intent['tag'])
+    def generate_recommendations(self, soil_data, weather_data):
+        """
+        Generates agricultural recommendations using OpenAI's API.
+        
+        Args:
+            soil_data (dict): Must contain at least 'ph' key
+            weather_data (dict): Must contain at least 'temperature' key
+            
+        Returns:
+            str: AI-generated recommendations or error message
+        """
+        try:
+            # Validate input data
+            if not isinstance(soil_data, dict) or not isinstance(weather_data, dict):
+                return "Error: soil_data and weather_data must be dictionaries"
+                
+            if 'ph' not in soil_data or 'temperature' not in weather_data:
+                return "Error: soil_data requires 'ph' and weather_data requires 'temperature'"
 
-words = [lemmatizer.lemmatize(word) for word in words if word not in ignore_letters]
-words = sorted(set(words))
+            # Construct the AI prompt
+            prompt = f"""
+            **Agricultural Recommendation Request**
+            Soil pH: {soil_data.get('ph')}
+            Temperature: {weather_data.get('temperature')}°C
+            Additional soil data: {soil_data}
+            Additional weather data: {weather_data}
 
-classes = sorted(set(classes))
+            Provide specific recommendations for:
+            1. Suitable crops
+            2. Soil amendments
+            3. Irrigation advice
+            4. Potential pest risks
+            """
 
-pickle.dump(words, open('words.pkl', 'wb'))
-pickle.dump(classes, open('classes.pkl', 'wb'))
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": "gpt-3.5-turbo",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an expert agronomist. Provide concise, practical farming advice."
+                    },
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.3,
+                "max_tokens": 500
+            }
 
-training = []
-output_empty = [0] * len(classes)
+            response = requests.post(self.base_url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()  # Raises HTTPError for bad responses
+            
+            return response.json()["choices"][0]["message"]["content"].strip()
+            
+        except requests.exceptions.RequestException as e:
+            return f"API Error: {str(e)}"
+        except Exception as e:
+            return f"Processing Error: {str(e)}"
 
-for document in documents:
-    bag = []
-    word_patterns = document[0]
-  
-    word_patterns = [lemmatizer.lemmatize(word.lower()) for word in word_patterns if isinstance(word, str)]
-                     
-    for word in words:
-        bag.append(1) if word in word_patterns else bag.append(0)
-    
-    output_row = list(output_empty)
-    output_row[classes.index(document[1])] = 1
-    training.append(bag + output_row)
+# Initialize with API key
+try:
+    agrigpt = Farmer_AgriGpt(os.environ["OPENAI_API_KEY"])
+except Exception as e:
+    print(f"Failed to initialize AgriGPT: {e}")
+    exit(1)
 
-random.shuffle(training)
-training = np.array(training)
+@app.route('/')
+def home():
+    """Root endpoint with usage instructions"""
+    return """
+    <h1>AgriGPT API</h1>
+    <p>Send POST requests to /recommend with JSON:</p>
+    <pre>
+    {
+        "soil_data": {"ph": 6.5, ...},
+        "weather_data": {"temperature": 25, ...}
+    }
+    </pre>
+    """
 
-train_x = training[:, :len(words)]
-train_y = training[:, len(words):]
+@app.route('/recommend', methods=['POST'])
+def recommend():
+    """
+    Main recommendation endpoint
+    Example request:
+    {
+        "soil_data": {"ph": 6.2, "nitrogen": 20},
+        "weather_data": {"temperature": 22, "humidity": 60}
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Input validation
+        if not data:
+            return jsonify({"error": "No JSON data provided"}), 400
+            
+        soil_data = data.get('soil_data', {})
+        weather_data = data.get('weather_data', {})
+        
+        if not soil_data or not weather_data:
+            return jsonify({"error": "Both soil_data and weather_data are required"}), 400
+            
+        # Get AI recommendations
+        recommendations = agrigpt.generate_recommendations(soil_data, weather_data)
+        
+        return jsonify({
+            "status": "success",
+            "soil_data": soil_data,
+            "weather_data": weather_data,
+            "recommendations": recommendations
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-model = tf.keras.Sequential()
-
-model.add(tf.keras.layers.Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
-model.add(tf.keras.layers.Dropout(0.5))
-model.add(tf.keras.layers.Dense(64, activation='relu'))
-model.add(tf.keras.layers.Dense(len(train_y[0]), activation="softmax"))
-
-sgd = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
-
-model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-hist = model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
-
-model.save('Chatbot For Soil Health System.h5', hist)
-
-print("Executed and saved successfully")
+if __name__ == '__main__':
+    port = int(os.getenv("PORT", 8009))
+    app.run(host='0.0.0.0', port=port, debug=True)
