@@ -12,9 +12,14 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 #load documents for more local agricultural context
-data_path = './data/soil nutrient loss in malawi.txt'
-loader = TextLoader(file_path=data_path, encoding="utf-8")
-documents = loader.load()
+data_dir = './extracted_text'
+text_files = [f for f in os.listdir(data_dir) if f.endswith('.txt')]
+
+documents = []
+for file in text_files:
+    file_path = os.path.join(data_dir, file)
+    loader = TextLoader(file_path=file_path, encoding="utf-8")
+    documents.extend(loader.load())
 
 text_splitter = CharacterTextSplitter(
     chunk_size=800,
