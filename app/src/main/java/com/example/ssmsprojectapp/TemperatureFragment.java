@@ -44,11 +44,13 @@ public class TemperatureFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_temperature, container, false);
 
+        setupTemperatureChart();
+        loadTemperatureData();
         return view;
     }
 
 
-    private void setupSalinityChart() {
+    private void setupTemperatureChart() {
         temperatureChart.getDescription().setEnabled(true);
         temperatureChart.getDescription().setText("Soil temperature");
         temperatureChart.setTouchEnabled(true);

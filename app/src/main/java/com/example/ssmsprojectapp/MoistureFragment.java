@@ -83,9 +83,9 @@ public class MoistureFragment extends Fragment {
 
         List<Entry> entries = new ArrayList<>();
         //load the data from the measurements
-        for (Measurement measurement: measurementList) {
-            entries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getMoisture()));
-        }
+        //for (Measurement measurement: measurementList) {
+        //    entries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getMoisture()));
+       // }
 
         // Add sample data (x = timestamp, y = moisture %)
         //entries.add(new Entry(System.currentTimeMillis() - 86400000*2, 45f)); // 2 days ago
