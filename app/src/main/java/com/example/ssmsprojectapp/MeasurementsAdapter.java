@@ -1,11 +1,14 @@
 package com.example.ssmsprojectapp;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ssmsprojectapp.datamodels.Farm;
@@ -17,8 +20,15 @@ public class MeasurementsAdapter extends RecyclerView.Adapter<MeasurementsAdapte
 
     private List<Measurement> measurements;
 
-    public MeasurementsAdapter(List<Measurement> measurements) {
+    private OnMeasurementClickListener listener;
+
+    public interface OnMeasurementClickListener {
+        void OnMeasurementClick(View view,Measurement measurement);
+    }
+
+    public MeasurementsAdapter(List<Measurement> measurements,OnMeasurementClickListener listener) {
         this.measurements = measurements;
+        this.listener = listener;
     }
 
     @NonNull
@@ -34,6 +44,13 @@ public class MeasurementsAdapter extends RecyclerView.Adapter<MeasurementsAdapte
 
         Measurement measurement = measurements.get(position);
         holder.bind(measurement);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.OnMeasurementClick(v,measurement);
+            }
+        });
     }
 
     @Override
