@@ -56,7 +56,7 @@ public class HomePage extends AppCompatActivity {
     private String currentUsername;
     private String selectedFarmname;
 
-    private List<Measurement> measurements;
+    private List<Measurement> measurements = new ArrayList<>();
 
     //toolbar
     private Toolbar toolbar;
@@ -66,11 +66,14 @@ public class HomePage extends AppCompatActivity {
     public HomePage(){
 
     }
-    public HomePage(List<Measurement> measurements,String farmName){
-        this.measurements = measurements;
-        this.selectedFarmname = farmName;
+
+    public List<Measurement> getMeasurements() {
+        return measurements;
     }
 
+    public void setMeasurements(List<Measurement> measurements) {
+        this.measurements = measurements;
+    }
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +123,11 @@ public class HomePage extends AppCompatActivity {
         analytics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HomePage.this, Graphs.class));
+
+                //startActivity(new Intent(HomePage.this, Graphs.class));
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container,new GraphsFragment(measurements))
+                        .commit();
             }
         });
         profile = findViewById(R.id.nav_profile);
