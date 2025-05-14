@@ -1,6 +1,7 @@
 package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -81,7 +82,7 @@ public class AccountFragment extends Fragment {
 
         //init the measurements recycler
         measurementsRecycler = view.findViewById(R.id.measurements_recycler);
-        measurementsAdapter = new MeasurementsAdapter(new ArrayList<>());
+        measurementsAdapter = new MeasurementsAdapter(new ArrayList<>(),this::onMeasurementSelected);
         measurementsRecycler.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,false));
         measurementsRecycler.setAdapter(measurementsAdapter);
 
@@ -211,6 +212,39 @@ public class AccountFragment extends Fragment {
                 Log.e("FarmerDashboard", "Error loading measurements", task.getException());
             }
         });
+    }
+
+
+    @SuppressLint("MissingInflatedId")
+    public void onMeasurementSelected(View v,Measurement measurement){
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.measurement_info_dialog_layout, null);
+        builder.setView(dialogView);
+        builder.setCancelable(false);
+
+        TextView date = dialogView.findViewById(R.id.date);
+        TextView ph = dialogView.findViewById(R.id.tvph);
+        TextView salinity = dialogView.findViewById(R.id.tvsalinity);
+        TextView moisture = dialogView.findViewById(R.id.tvmoisture);
+        TextView nitrogen = dialogView.findViewById(R.id.tvnitrogen);
+        TextView phosphorous = dialogView.findViewById(R.id.tvphosphorous);
+        TextView potassium = dialogView.findViewById(R.id.tvpotassium);
+
+        //date.setText(measurement.getTimestamp().getDate());
+        ph.setText(measurement.getPh()+"");
+        salinity.setText(measurement.getSalinity()+"");
+        moisture.setText(measurement.getMoisture()+"");
+        nitrogen.setText(measurement.getNitrogen()+"");
+        phosphorous.setText(measurement.getPh()+"");
+        potassium.setText(measurement.getPotassium()+"");
+
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //dismiss the dialog
+            }
+        });
+        builder.show();
     }
 
     private void addNewMeasurement(View view) {
