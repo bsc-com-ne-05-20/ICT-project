@@ -104,7 +104,7 @@ public class HomeFragment extends Fragment {
 
         //farm measurements recyclerView
         recyclerView = view.findViewById(R.id.recycler);
-        farmMeasurementRAdapter = new MeasurementsAdapter(new ArrayList<>());
+        farmMeasurementRAdapter = new MeasurementsAdapter(new ArrayList<>(),this::onMeasurementSelected);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,false));
         recyclerView.setAdapter(farmMeasurementRAdapter);
 
@@ -275,12 +275,10 @@ public class HomeFragment extends Fragment {
                         }
                     });
 
-                    //load the measurements to the visualisation fragments
-                    new SalinityFragment(measurements);
-                    new TemperatureFragment(measurements);
-                    new NutrientsFragment(measurements);
-                    new MoistureFragment(measurements);
-                    new MetalsFragment(measurements);
+                    //load the measurements to the visualisation fragments to homepage
+
+                    new HomePage().setMeasurements(measurements);
+
 
                 }
                 //add else to handle the case where the farm is just created and there is no measurements yet
@@ -294,6 +292,41 @@ public class HomeFragment extends Fragment {
             }
         });
     }
+
+
+    @SuppressLint("MissingInflatedId")
+    public void onMeasurementSelected(View v,Measurement measurement){
+        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.measurement_info_dialog_layout, null);
+        builder.setView(dialogView);
+        builder.setCancelable(false);
+
+        TextView date1 = dialogView.findViewById(R.id.date);
+        TextView ph = dialogView.findViewById(R.id.tvph);
+        TextView salinity = dialogView.findViewById(R.id.tvsalinity);
+        TextView moisture = dialogView.findViewById(R.id.tvmoisture);
+        TextView nitrogen = dialogView.findViewById(R.id.tvnitrogen);
+        TextView phosphorous = dialogView.findViewById(R.id.tvphosphorous);
+        TextView potassium = dialogView.findViewById(R.id.tvpotassium);
+
+        date1.setText(measurement.getTimestamp().toString());
+        ph.setText(measurement.getPh()+"");
+        salinity.setText(measurement.getSalinity()+"");
+        moisture.setText(measurement.getMoisture()+"");
+        nitrogen.setText(measurement.getNitrogen()+"");
+        phosphorous.setText(measurement.getPh()+"");
+        potassium.setText(measurement.getPotassium()+"");
+
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //dismiss the dialog
+            }
+        });
+        builder.show();
+    }
+
+
     private void initStats(View view) {
 
     }
@@ -346,6 +379,9 @@ public class HomeFragment extends Fragment {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); // or STYLE_HORIZONTAL
         progressDialog.setCancelable(false); // Optional - prevent dismissing by tapping outside
         progressDialog.show();
+    }
+    public void dismissProgress(){
+        progressDialog.dismiss();
     }
 
     //adding farms and new farmer methods
