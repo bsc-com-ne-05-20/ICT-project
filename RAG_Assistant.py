@@ -202,3 +202,14 @@ while True:
         break
     except Exception as e:
         print(f"\nAssistant: Sorry I encountered an error, please try again. ({str(e)})")
+
+#-------------- conversation chain to load different chat ids to keep track of different conversations in our mobile app ---------------------#
+def create_conversation_chain():
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    return ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=retriever,
+        memory=memory,
+        combine_docs_chain_kwargs={"prompt": CUSTOM_QA_PROMPT},
+        verbose=False
+    )
