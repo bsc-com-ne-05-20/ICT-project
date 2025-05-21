@@ -103,26 +103,7 @@
                         android:textColor="@color/main_color" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/nav_analytics"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        app:srcCompat="@drawable/analytics" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="Analytics"
-                        android:textColor="@color/main_color" />
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/nav_profile"
