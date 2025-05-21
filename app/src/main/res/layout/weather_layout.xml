@@ -61,8 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="5dp"
-                android:textColor="@color/gray"
-                android:text="Thondwe,zomba" />
+                android:textColor="@color/gray" />
 
         </LinearLayout>
 
@@ -87,7 +86,7 @@
                         android:id="@+id/ivWeatherIcon"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        app:srcCompat="@drawable/baseline_wb_sunny_24" />
+                        />
 
                     <TextView
                         android:id="@+id/tvTemp"
@@ -99,14 +98,13 @@
                         android:layout_marginStart="15dp"
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:text="20℃" />
+                        />
 
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="partly cloudy"
                     android:padding="5dp"/>
             </LinearLayout>
 
@@ -136,7 +134,7 @@
                        android:textSize="14sp"
                        android:textColor="@color/gray"
                        android:padding="3dp"
-                       android:text="49%" />
+                       />
                </LinearLayout>
 
 
@@ -159,8 +157,7 @@
                        android:layout_weight="1"
                        android:textSize="14sp"
                        android:textColor="@color/gray"
-                       android:padding="3dp"
-                       android:text="10 m/s" />
+                       android:padding="3dp" />
                </LinearLayout>
 
                <LinearLayout
@@ -182,8 +179,7 @@
                        android:layout_weight="1"
                        android:textSize="14sp"
                        android:textColor="@color/gray"
-                       android:padding="3dp"
-                       android:text="10 mm" />
+                       android:padding="3dp" />
                </LinearLayout>
 
            </LinearLayout>
