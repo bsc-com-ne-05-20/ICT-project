@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +44,11 @@ public class AgriChatbot extends AppCompatActivity {
     private MessageAdapter messageAdapter;
     private List<Message> messages = new ArrayList<>();
 
+    private LinearLayout welcome_layout;
+    private ScrollView scrollView;
+
+    private RecyclerView suggestionsRecycler;
+
     // In a real app, you would get this from your authentication system
     private final String currentUserId = "user1";
 
@@ -62,11 +69,11 @@ public class AgriChatbot extends AppCompatActivity {
             return insets;
         });
 
-
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         initializeViews();
         setupRecyclerView();
         setupMessageInput();
-        loadMessages();
+        //loadMessages();
 
     }
 
@@ -77,10 +84,16 @@ public class AgriChatbot extends AppCompatActivity {
 
 
         LinearLayout linearLayout = findViewById(R.id.message_input_layout);
-        linearLayout.requestFocus();
+        //linearLayout.requestFocus();
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.showSoftInput(linearLayout,InputMethodManager.SHOW_IMPLICIT);
+        //inputMethodManager.showSoftInput(messageInput,InputMethodManager.SHOW_IMPLICIT);
 
+        suggestionsRecycler = findViewById(R.id.suggestions_recycler);
+        suggestionsRecycler.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
+        suggestionsRecycler.setAdapter(new SuggetionAdapter());
+
+        welcome_layout = findViewById(R.id.welcome_layout);
+        scrollView = findViewById(R.id.messages_layout);
         sendButton = findViewById(R.id.send_button);
     }
 
@@ -104,7 +117,14 @@ public class AgriChatbot extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        sendButton.setOnClickListener(v -> sendMessage());
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+                welcome_layout.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void loadMessages() {
