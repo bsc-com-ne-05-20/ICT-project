@@ -30,7 +30,7 @@ public class SalinityFragment extends Fragment {
 
     private LineChart salinityChart;
 
-    private List<Measurement> measurementList;
+    private List<Measurement> measurementList = new ArrayList<>();
 
 
     public SalinityFragment() {

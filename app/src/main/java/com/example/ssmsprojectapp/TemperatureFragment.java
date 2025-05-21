@@ -29,7 +29,7 @@ import java.util.Locale;
 public class TemperatureFragment extends Fragment {
 
     private LineChart temperatureChart;
-    private List<Measurement> measurementList;
+    private List<Measurement> measurementList = new ArrayList<>();
 
     public TemperatureFragment(){
     }

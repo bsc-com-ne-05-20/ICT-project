@@ -31,7 +31,7 @@ import java.util.Locale;
 public class NutrientsFragment extends Fragment {
 
     private CombinedChart nutrientsChart;
-    private List<Measurement> measurementList;
+    private List<Measurement> measurementList =  new ArrayList<>();
 
     public NutrientsFragment() {
         // Required empty public constructor

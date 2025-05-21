@@ -48,7 +48,7 @@ import java.util.Map;
 public class HomePage extends AppCompatActivity {
 
     private FloatingActionButton fab;
-    private LinearLayout home,chat,analytics,profile;
+    private LinearLayout home,profile;
 
     //database
     private FirestoreRepository repository;
@@ -121,17 +121,6 @@ public class HomePage extends AppCompatActivity {
             public void onClick(View v) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container,new HomeFragment(repository,currentFarmerId))
-                        .commit();
-            }
-        });
-        analytics = findViewById(R.id.nav_analytics);
-        analytics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //startActivity(new Intent(HomePage.this, Graphs.class));
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container,new GraphsFragment(measurements))
                         .commit();
             }
         });

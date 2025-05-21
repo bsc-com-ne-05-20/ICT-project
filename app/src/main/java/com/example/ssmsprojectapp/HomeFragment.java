@@ -2,6 +2,7 @@ package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -86,6 +87,16 @@ public class HomeFragment extends Fragment {
     private WeatherRepository weatherRepository;
     private double currentLatitude = 0.0;
     private double currentLongitude = 0.0;
+
+    private Button btnAnalytics;
+
+    //passing of data
+    private MeasurementsListDataListener measurementListDataListener;
+
+    //the interface to handle data sharing to activities
+    public interface MeasurementsListDataListener {
+        void onListDataPassed(List<Measurement> list);
+    }
 
     public HomeFragment() {
         // Required empty public constructor
@@ -196,8 +207,34 @@ public class HomeFragment extends Fragment {
                 openFarmsDialog(v);
             }
         });
+
+        //init the analytics button
+        btnAnalytics  = view.findViewById(R.id.btn_analytics);
+        btnAnalytics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(view.getContext(), Graphs.class));
+            }
+        });
         return view;
 
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            measurementListDataListener = (MeasurementsListDataListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement ListDataListener");
+        }
+    }
+
+    //attach the measurement list to yhe fragment
+    private void sendListToActivity(List<Measurement> list) {
+        if (measurementListDataListener != null) {
+            measurementListDataListener.onListDataPassed(list);
+        }
     }
 
     private void openFarmsDialog(View v) {
@@ -310,6 +347,7 @@ public class HomeFragment extends Fragment {
                 if (!measurements.isEmpty()){
                     Measurement latestMeasurement = measurements.get(0);
 
+
                     // Update UI with measurements
                     requireActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -323,10 +361,8 @@ public class HomeFragment extends Fragment {
                         }
                     });
 
-                    //load the measurements to the visualisation fragments to homepage
-
-                    new HomePage().setMeasurements(measurements);
-
+                    //send measurement list to activity
+                    sendListToActivity(measurements);
 
                 }
                 //add else to handle the case where the farm is just created and there is no measurements yet

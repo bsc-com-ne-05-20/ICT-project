@@ -12,15 +12,18 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Graphs extends AppCompatActivity {
+public class Graphs extends AppCompatActivity implements HomeFragment.MeasurementsListDataListener{
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
+
+    private List<Measurement> measurements;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,10 @@ public class Graphs extends AppCompatActivity {
         viewPager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
 
+        //init the measurements List
+        measurements = new ArrayList<>();
+
+
         setupViewPager();
         tabLayout.setupWithViewPager(viewPager);
     }
@@ -45,13 +52,18 @@ public class Graphs extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add tabs for each parameter
-        adapter.addFragment(new MoistureFragment(), "Moisture");
-        adapter.addFragment(new TemperatureFragment(), "Temperature");
-        adapter.addFragment(new NutrientsFragment(), "Nutrients");
-        adapter.addFragment(new SalinityFragment(), "Salinity");
-        adapter.addFragment(new MetalsFragment(), "Metals");
+        adapter.addFragment(new MoistureFragment(measurements), "Moisture");
+        adapter.addFragment(new TemperatureFragment(measurements), "Temperature");
+        adapter.addFragment(new NutrientsFragment(measurements), "Nutrients");
+        adapter.addFragment(new SalinityFragment(measurements), "Salinity");
+        adapter.addFragment(new MetalsFragment(measurements), "Metals");
 
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void onListDataPassed(List<Measurement> list) {
+        measurements = list;
     }
 
 
