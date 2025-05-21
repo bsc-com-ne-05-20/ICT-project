@@ -10,33 +10,24 @@
     tools:context=".AIRecommendations">
 
 
-    <TextView
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="5dp"
-        android:textColor="@color/main_color"
-        android:textStyle="bold"
-        android:textSize="25sp"
-        android:text="AI" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@color/main_color_sub2"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:text="Recommendations" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="20dp"
-        android:background="@color/gray"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginEnd="20dp"/>
+        android:layout_alignParentTop="true"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="AI Recommendations"
+            app:subtitle="Thondwe estate"
+            app:subtitleTextColor="#DEDADA"
+            app:titleTextColor="@android:color/white" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -87,7 +78,7 @@
 
     <Button
         android:id="@+id/proceed_to_chat"
-        style="@style/Widget.MaterialComponents.Button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -95,8 +86,7 @@
         android:textAllCaps="false"
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="#2C95FE"
-        android:text="Proceed to Assistant" />
+        android:text="Proceed to Agricultural Assistant" />
 
 
 </LinearLayout>
