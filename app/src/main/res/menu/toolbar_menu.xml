@@ -8,11 +8,4 @@
         android:icon="@drawable/baseline_notifications_24_white"
         android:iconTint="@color/white"
         app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/add"
-        android:title="add"
-        android:icon="@drawable/baseline_add_circle_outline_24"
-        android:iconTint="@color/white"
-        app:showAsAction="ifRoom"/>
 </menu>

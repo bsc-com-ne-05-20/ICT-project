@@ -35,7 +35,7 @@
         <activity
             android:name=".RegisterFarmer"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".RegisterCooperative"
             android:exported="false" />
@@ -51,7 +51,7 @@
         <activity
             android:name=".AgriChatbot"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".TakeCoordinates"
             android:exported="false" />

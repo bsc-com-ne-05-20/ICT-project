@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/swiperefreshlayout"
     tools:context=".HomeFragment">
 
     <ScrollView
@@ -161,24 +162,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="%"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@color/main_color_sub1"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="optimal"
-                            android:textColor="@color/white"
+                            android:text="Optimal"
+                            android:textColor="@color/main_color"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -232,24 +225,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="%"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@color/main_color_sub1"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="good"
-                            android:textColor="@color/white"
+                            android:text="Good"
+                            android:textColor="@color/main_color_sub1"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -303,24 +288,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="℃"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@color/main_color_sub1"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="normal"
-                            android:textColor="@color/white"
+                            android:text="Normal"
+                            android:textColor="@color/yellow"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -357,7 +334,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="Nitrogen"
+                                android:text="N(ppm)"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
                                 />
@@ -374,24 +351,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="ppm"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@color/yellow"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="low"
-                            android:textColor="@color/white"
+                            android:text="Low"
+                            android:textColor="@color/red"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -428,7 +397,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="phos"
+                                android:text="P(ppm)"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
                                 />
@@ -445,24 +414,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="ppm"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="@color/main_color_sub1"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="optimal"
-                            android:textColor="@color/white"
+                            android:text="Optimal"
+                            android:textColor="@color/main_color"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -498,7 +459,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"
-                                android:text="potassium"
+                                android:text="K (ppm)"
                                 android:textAlignment="center"
                                 android:textColor="@color/black"
                                 />
@@ -515,24 +476,16 @@
                             android:textSize="25sp"
                             android:textStyle="bold" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="ppm"
-                            android:textColor="@color/gray"
-                            android:textSize="15sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:background="#A0AB2F"
                             android:paddingStart="5dp"
                             android:paddingEnd="5dp"
                             android:paddingBottom="3dp"
-                            android:text="medium"
-                            android:textColor="@color/white"
+                            android:text="Optimal"
+                            android:textColor="@color/main_color"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -540,7 +493,9 @@
             </androidx.gridlayout.widget.GridLayout>
 
 
-            <include layout="@layout/weather_layout"/>
+            <include
+                android:id="@+id/weather_card"
+                layout="@layout/weather_layout"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -563,14 +518,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:textColor="@color/white"
+                    android:textColor="@color/main_color_sub1"
                     android:textStyle="bold"
                     android:padding="8dp"
                     android:layout_marginEnd="15dp"
                     android:textAllCaps="false"
-                    app:backgroundTint="#0098d0"
+                    app:backgroundTint="#F6FDFA"
                     android:layout_weight="1"
-                    android:text="Recommendations" />
+                    android:text="See all" />
             </LinearLayout>
 
 
@@ -696,7 +651,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
-                    android:textColor="#2B46D9"
+                    android:textColor="@color/main_color_sub1"
                     android:textStyle="bold"
                     android:gravity="end"
                     android:padding="8dp"
@@ -706,18 +661,16 @@
                     android:text="see all" />
             </LinearLayout>
 
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
                 android:layout_marginEnd="15dp"
-                android:layout_marginStart="15dp">
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="50dp"/>
 
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent" />
-            </HorizontalScrollView>
 
         </LinearLayout>
 
