@@ -10,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,23 +23,31 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.ssmsprojectapp.datamodels.Farm;
 import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
 import com.example.ssmsprojectapp.datamodels.Measurement;
+import com.example.ssmsprojectapp.weather.ForecastResponse;
+import com.example.ssmsprojectapp.weather.WeatherRepository;
+import com.example.ssmsprojectapp.weather.WeatherResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -67,6 +77,16 @@ public class HomeFragment extends Fragment {
     private AlertDialog alertDialog;
     private AlertDialog.Builder builder;
 
+    //weather fields
+    private static final String ICON_URL = "https://openweathermap.org/img/wn/%s@4x.png";
+
+    private TextView tvCity, tvTemp, tvDescription, tvHumidity, tvWind;
+    private ImageView ivWeatherIcon;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private WeatherRepository weatherRepository;
+    private double currentLatitude = 0.0;
+    private double currentLongitude = 0.0;
+
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -88,6 +108,29 @@ public class HomeFragment extends Fragment {
         linearLayout = view.findViewById(R.id.homepage_layout);
         linearLayout.setVisibility(View.INVISIBLE);
 
+        //init weather views
+        initWeatherViews(view);
+        weatherRepository = new WeatherRepository();
+
+        CardView wCard = view.findViewById(R.id.weather_card);
+        wCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.replace(R.id.container,new weatherFragment(currentLatitude,currentLongitude));
+                transaction.commit();
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            if (currentLatitude != 0.0 && currentLongitude != 0.0) {
+                fetchWeatherData(currentLatitude, currentLongitude);
+            } else {
+                Toast.makeText(getContext(), "your farm's coordinates are invalid", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         //setting the current user name
         farmerName = view.findViewById(R.id.farmer_name);
 
@@ -96,7 +139,7 @@ public class HomeFragment extends Fragment {
             String email = user.getEmail();        // Farmer's email
             name = user.getDisplayName();   // Farmer's name
             String uid = user.getUid();// Unique user ID
-            farmerName.setText("Hi " + name);
+            farmerName.setText("Hi " + name + ",d");
         }
         TextView greeting = view.findViewById(R.id.greeting_text);
         greeting.setText(getMessage());
@@ -194,6 +237,11 @@ public class HomeFragment extends Fragment {
         selectedFarmId = farm.getId();
         selectedFarmName = farm.getFarmName();
 
+        currentLatitude = farm.getLatitude();
+        currentLongitude = farm.getLongitude();
+
+        //fetch weather data
+        fetchWeatherData(currentLatitude, currentLongitude);
 
         //update ui
 
@@ -327,10 +375,6 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void initStats(View view) {
-
-    }
-
     public void statsDialog(View view,String param){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
@@ -453,5 +497,84 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(v.getContext(), "Error adding farm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
         );
+    }
+
+    //weather methods
+
+    private void initWeatherViews(View view) {
+        tvCity = view.findViewById(R.id.tvCity);
+        tvTemp = view.findViewById(R.id.tvTemp);
+        tvDescription = view.findViewById(R.id.tvDescription);
+        tvHumidity = view.findViewById(R.id.tv_humidity);
+        tvWind = view.findViewById(R.id.tv_wind);
+        ivWeatherIcon = view.findViewById(R.id.ivWeatherIcon);
+        swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
+
+    }
+
+    private void fetchWeatherData(double lat, double lon) {
+        swipeRefreshLayout.setRefreshing(true);
+        weatherRepository.getCurrentWeather(lat, lon, new WeatherRepository.WeatherCallback() {
+            @Override
+            public void onSuccess(WeatherResponse response) {
+                requireActivity().runOnUiThread(() -> {
+                    updateUI(response);
+                    fetchForecastData(lat, lon);
+                });
+            }
+
+            @Override
+            public void onFailure(String message) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                });
+            }
+        });
+    }
+
+
+    private void fetchForecastData(double lat, double lon) {
+        weatherRepository.getWeatherForecast(lat, lon, new WeatherRepository.ForecastCallback() {
+            @Override
+            public void onSuccess(ForecastResponse response) {
+                requireActivity().runOnUiThread(() -> {
+                    // Here you can update forecast UI if needed
+                    swipeRefreshLayout.setRefreshing(false);
+                });
+            }
+
+            @Override
+            public void onFailure(String message) {
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Forecast: " + message, Toast.LENGTH_SHORT).show();
+                    swipeRefreshLayout.setRefreshing(false);
+                });
+            }
+        });
+    }
+
+    private void updateUI(WeatherResponse weather) {
+        if (weather.getCityName() != null && weather.getSys() != null) {
+            tvCity.setText(String.format("%s, %s", weather.getCityName(), weather.getSys().getCountry()));
+        } else {
+            tvCity.setText("Unknown Location");
+        }
+
+        if (weather.getMain() != null) {
+            tvTemp.setText(String.format(Locale.getDefault(), "%.1f°C", weather.getMain().getTemp()));
+            tvHumidity.setText(String.format(Locale.getDefault(), "Humidity: %d%%", weather.getMain().getHumidity()));
+        }
+
+        if (weather.getWeather() != null && weather.getWeather().length > 0) {
+            tvDescription.setText(weather.getWeather()[0].getDescription());
+            String iconUrl = String.format(ICON_URL, weather.getWeather()[0].getIcon());
+            Glide.with(this).load(iconUrl).into(ivWeatherIcon);
+        }
+
+        if (weather.getWind() != null) {
+            tvWind.setText(String.format(Locale.getDefault(), "Wind: %.1f m/s", weather.getWind().getSpeed()));
+        }
+
     }
 }

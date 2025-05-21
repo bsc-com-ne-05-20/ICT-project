@@ -56,12 +56,12 @@ public class HomePage extends AppCompatActivity {
     private String currentUsername;
     private String selectedFarmname;
 
+    private FloatingActionButton addmeasurement,goToChatbot;
+
     private List<Measurement> measurements = new ArrayList<>();
 
     //toolbar
     private Toolbar toolbar;
-    private static final int NOTIFICATIONS = R.id.notify;
-    private static final int ADD_FARM = R.id.add;
 
     public HomePage(){
 
@@ -102,6 +102,18 @@ public class HomePage extends AppCompatActivity {
         transaction.add(R.id.container,new HomeFragment(repository,currentFarmerId));
         transaction.commit();
 
+        //ii=nit fabs
+        addmeasurement = findViewById(R.id.add_fab);
+        goToChatbot = findViewById(R.id.go_to_chat);
+
+        goToChatbot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //pass some data ofcourse
+                startActivity(new Intent(HomePage.this, AgriChatbot.class));
+            }
+        });
+
         //init bottom nav
         home = findViewById(R.id.nav_home);
         home.setOnClickListener(new View.OnClickListener() {
@@ -110,13 +122,6 @@ public class HomePage extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container,new HomeFragment(repository,currentFarmerId))
                         .commit();
-            }
-        });
-        chat = findViewById(R.id.nav_chat);
-        chat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               startActivity(new Intent(HomePage.this, AgriChatbot.class));
             }
         });
         analytics = findViewById(R.id.nav_analytics);
@@ -224,11 +229,12 @@ public class HomePage extends AppCompatActivity {
                    .replace(R.id.container,new NoficationsFragment())
                    .commit();
             return true;
-        } else if (id == R.id.add) {
+        }
+        /*else if (id == R.id.add) {
             // Handle search action
             startActivity(new Intent(HomePage.this, MeasurementsPage.class));
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
