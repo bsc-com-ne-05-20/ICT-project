@@ -27,4 +27,8 @@ public class Message {
     public String getSenderId() { return senderId; }
     public long getTimestamp() { return timestamp; }
     public boolean isSentByMe() { return isSentByMe; }
+
+    public boolean isUser() {
+        return isSentByMe;
+    }
 }

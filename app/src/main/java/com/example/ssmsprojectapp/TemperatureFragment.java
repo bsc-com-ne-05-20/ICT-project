@@ -44,6 +44,7 @@ public class TemperatureFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_temperature, container, false);
 
+        temperatureChart = view.findViewById(R.id.temperature_chart);
         setupTemperatureChart();
         loadTemperatureData();
         return view;

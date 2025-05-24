@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class HomePage extends AppCompatActivity {
+public class HomePage extends AppCompatActivity implements HomeFragment.MeasurementsListDataListener{
 
     private FloatingActionButton fab;
     private LinearLayout home,profile;
@@ -244,4 +244,8 @@ public class HomePage extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onListDataPassed(List<Measurement> list) {
+
+    }
 }

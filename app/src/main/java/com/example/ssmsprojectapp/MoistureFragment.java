@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.github.mikephil.charting.charts.LineChart;
@@ -83,8 +84,21 @@ public class MoistureFragment extends Fragment {
 
         List<Entry> entries = new ArrayList<>();
         //load the data from the measurements
-        for (Measurement measurement: measurementList) {
-            entries.add(new Entry( measurement.getTimestamp().getDate(), (float)measurement.getMoisture()));
+
+        if (!measurementList.isEmpty()){
+            for (Measurement measurement : measurementList) {
+                // Convert timestamp to float (usually X axis)
+                float xValue = (float) measurement.getTimestamp().getTime(); // Using getTime() for milliseconds
+
+                // Get moisture value (Y axis)
+                float yValue = (float) measurement.getMoisture();
+
+                // Create and add entry
+                entries.add(new Entry(xValue, yValue));
+            }
+        }
+        else {
+            Toast.makeText(getContext(), "Empty List", Toast.LENGTH_SHORT).show();
         }
 
         // Add sample data (x = timestamp, y = moisture %)

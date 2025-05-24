@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,6 +89,8 @@ public class HomeFragment extends Fragment {
     private WeatherRepository weatherRepository;
     private double currentLatitude = 0.0;
     private double currentLongitude = 0.0;
+
+    private List<Measurement> currMeasurements = new ArrayList<>();
 
     private Button btnAnalytics;
 
@@ -208,12 +212,22 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        SharedPreferences prefs = requireContext().getSharedPreferences("TempStorage", Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+
         //init the analytics button
         btnAnalytics  = view.findViewById(R.id.btn_analytics);
         btnAnalytics.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(view.getContext(), Graphs.class));
+                if (!currMeasurements.isEmpty()){
+                    String jsonList = gson.toJson(currMeasurements);
+                    prefs.edit().putString("temp_list", jsonList).apply();
+                    startActivity(new Intent(view.getContext(), Graphs.class));
+                }
+                else {
+                    Toast.makeText(getContext(), "Empty measurement List", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         return view;
@@ -363,6 +377,8 @@ public class HomeFragment extends Fragment {
 
                     //send measurement list to activity
                     sendListToActivity(measurements);
+
+                    currMeasurements = measurements;
 
                 }
                 //add else to handle the case where the farm is just created and there is no measurements yet

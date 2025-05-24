@@ -1,6 +1,8 @@
 package com.example.ssmsprojectapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,11 +16,14 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Graphs extends AppCompatActivity implements HomeFragment.MeasurementsListDataListener{
+public class Graphs extends AppCompatActivity{
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -36,6 +41,19 @@ public class Graphs extends AppCompatActivity implements HomeFragment.Measuremen
             return insets;
         });
 
+        //get the data from shared preference
+        SharedPreferences prefs = getSharedPreferences("TempStorage", MODE_PRIVATE);
+        String jsonList = prefs.getString("temp_list", null);
+        Type type = new TypeToken<List<Measurement>>(){}.getType();
+        //get the data
+        measurements = new Gson().fromJson(jsonList, type);
+
+        if (measurements.isEmpty()){
+            Toast.makeText(this, "Hey i didnt get the data", Toast.LENGTH_SHORT).show();
+        }
+        //
+        prefs.edit().remove("temp_list").apply();
+
         // Setup ViewPager and TabLayout
         viewPager = findViewById(R.id.view_pager);
         tabLayout = findViewById(R.id.tab_layout);
@@ -52,18 +70,13 @@ public class Graphs extends AppCompatActivity implements HomeFragment.Measuremen
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add tabs for each parameter
-        adapter.addFragment(new MoistureFragment(measurements), "Moisture");
+        adapter.addFragment(new MoistureFragment(), "Moisture");
         adapter.addFragment(new TemperatureFragment(measurements), "Temperature");
         adapter.addFragment(new NutrientsFragment(measurements), "Nutrients");
         adapter.addFragment(new SalinityFragment(measurements), "Salinity");
         adapter.addFragment(new MetalsFragment(measurements), "Metals");
 
         viewPager.setAdapter(adapter);
-    }
-
-    @Override
-    public void onListDataPassed(List<Measurement> list) {
-        measurements = list;
     }
 
 
