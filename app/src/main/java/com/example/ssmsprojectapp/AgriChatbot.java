@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ssmsprojectapp.databasehelpers.ChatDatabaseHelper;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
@@ -52,6 +53,9 @@ public class AgriChatbot extends AppCompatActivity {
     // In a real app, you would get this from your authentication system
     private final String currentUserId = "user1";
 
+    // Database helper
+    private ChatDatabaseHelper dbHelper;
+
     // Update with your Render URL
     //https://cornelliusbonongwe-agrichatbot.hf.space/ask
     private static final String RENDER_URL = "https://shimschat-13.onrender.com/ask";
@@ -69,12 +73,20 @@ public class AgriChatbot extends AppCompatActivity {
             return insets;
         });
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        // Initialize database helper
+        dbHelper = new ChatDatabaseHelper(this);
+
         initializeViews();
         setupRecyclerView();
         setupMessageInput();
-        //loadMessages();
+        loadMessages();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        dbHelper.close();
+        super.onDestroy();
     }
 
     private void initializeViews() {
@@ -128,10 +140,10 @@ public class AgriChatbot extends AppCompatActivity {
     }
 
     private void loadMessages() {
-        // In a real app, you would load messages from your database or API
-        // This is just sample data
-        messages.add(new Message("Hello! Ask me anything about soil health!", "assistant", "user2",
-                System.currentTimeMillis() - 3600000, false));
+        // Load messages from database
+        messages.clear();
+        messages.addAll(dbHelper.getAllMessages());
+
 
         messageAdapter.updateMessages(messages);
         scrollToBottom();
@@ -154,6 +166,9 @@ public class AgriChatbot extends AppCompatActivity {
                     timestamp,
                     true);
 
+            // Save to database
+            dbHelper.addMessage(newMessage);
+
             messages.add(newMessage);
             messageAdapter.updateMessages(messages);
             messageInput.setText("");
@@ -163,6 +178,15 @@ public class AgriChatbot extends AppCompatActivity {
             new AgriGPTTask().execute(query);
         }
 
+    }
+
+    // Optional: Add a method to clear chat history
+    private void clearChatHistory() {
+        dbHelper.clearAllMessages();
+        messages.clear();
+        messageAdapter.updateMessages(messages);
+        welcome_layout.setVisibility(View.VISIBLE);
+        scrollView.setVisibility(View.GONE);
     }
 
     private class AgriGPTTask extends AsyncTask<String, Void, String> {
@@ -223,6 +247,9 @@ public class AgriChatbot extends AppCompatActivity {
                     "user2",
                     timestamp,
                     false);
+
+            // Save to database
+            dbHelper.addMessage(replyMessage);
 
             runOnUiThread(() -> {
                 messages.add(replyMessage);
