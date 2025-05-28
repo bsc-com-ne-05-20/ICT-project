@@ -27,3 +27,10 @@ void setup() {
   pinMode(RS485_RE, OUTPUT);
   digitalWrite(RS485_RE, LOW);
 
+pinMode(MODEM_PWRKEY, OUTPUT);
+  digitalWrite(MODEM_PWRKEY, HIGH);
+  delay(1000);
+  digitalWrite(MODEM_PWRKEY, LOW);
+
+  Serial.println("Soil Monitoring System Initialized");
+}
