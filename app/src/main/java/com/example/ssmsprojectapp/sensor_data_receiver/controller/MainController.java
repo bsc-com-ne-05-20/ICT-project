@@ -86,8 +86,32 @@ public class MainController {
                             Manifest.permission.ACCESS_FINE_LOCATION
                     },
                     101);
+            }
         }
     }
-}
+
+    @SuppressLint("MissingPermission")
+    public void startDiscovery() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(context, "Scan permission not granted", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!bluetoothAdapter.isEnabled()) {
+            view.setStatus("Bluetooth not enabled");
+            return;
+        }
+
+        deviceList.clear();
+        view.clearDeviceList();
+        view.setStatus("Scanning...");
+
+        if (bluetoothAdapter.isDiscovering()) {
+            bluetoothAdapter.cancelDiscovery();
+        }
+
+        bluetoothAdapter.startDiscovery();
+    }
+
 
 }
