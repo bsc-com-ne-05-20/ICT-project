@@ -14,4 +14,41 @@
     <string name="desc_fourth">Join a growing community of farmers using technology to improve agriculture. Transform the way you monitor soil health!</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    //for sensors layouts
+    <string name="scan_devices">Scan Devices</string>
+    <string name="lat_lng">Lat: — Lng: —</string>
+    <string name="n_p_k">N: — P: — K: —</string>
+    <string name="app_name">Soil Monitor</string>
+    <string name="scan_bluetooth_devices">Scan Bluetooth Devices</string>
+    <string name="stop_scan">Stop Scan</string>
+    <string name="available_devices">Available Devices</string>
+    <string name="sensor_data">Sensor Data</string>
+    <string name="device_name">Device Name</string>
+    <string name="mac_address">MAC Address</string>
+    <string name="no_devices_found">No devices found</string>
+    <string name="no_data_available">No data available</string>
+    <string name="location_unavailable">Location Unavailable</string>
+    <string name="temp_0_c">Temp: 0°C</string>
+    <string name="ec_0">EC: 0</string>
+    <string name="moisture_0">Moisture: 0%</string>
+    <string name="ph_0">pH: 0</string>
+    <string name="sensor_value">Sensor Value</string>
+    <string name="status_disconnected">Status: Disconnected</string>
+    <string name="moisture">Moisture: --%</string>
+    <string name="temperature_c">Temperature: --°C</string>
+    <string name="ec">EC: --</string>
+    <string name="ph">pH: --</string>
+    <string name="nitrogen">Nitrogen: --</string>
+    <string name="phosphorus">Phosphorus: --</string>
+    <string name="potassium">Potassium: --</string>
+    <string name="clear_data">Clear Data</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="moisture_label">Moisture: —%</string>
+    <string name="temperature_label">Temperature: —°C</string>
+    <string name="ec_label">EC: — uS/cm</string>
+    <string name="ph_label">pH: —</string>
+    <string name="nitrogen_label">Nitrogen: —</string>
+    <string name="phosphorus_label">Phosphorus: —</string>
+    <string name="potassium_label">Potassium: —</string>
 </resources>
