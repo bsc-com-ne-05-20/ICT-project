@@ -135,5 +135,17 @@ public class MainController {
         }).start();
     }
 
+    public void disconnect() {
+        try {
+            if (connectedThread != null) {
+                connectedThread.cancel();
+                connectedThread = null;
+            }
+            view.setStatus("Disconnected");
+        } catch (Exception e) {
+            view.setStatus("Error Disconnecting");
+            e.printStackTrace();
+        }
+    }
 
 }
