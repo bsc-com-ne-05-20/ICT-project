@@ -23,6 +23,8 @@
             app:title="All measurements"
             app:subtitle="Thondwe estate"
             app:subtitleTextColor="#DEDADA"
+            app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge"
+            app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
             app:titleTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 

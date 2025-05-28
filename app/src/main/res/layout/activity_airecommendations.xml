@@ -24,8 +24,8 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             app:title="AI Recommendations"
-            app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge"
             app:subtitle="Thondwe estate"
+            app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge"
             app:subtitleTextColor="#DEDADA"
             app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
             app:titleTextColor="@android:color/white" />

@@ -27,6 +27,9 @@
                 android:background="?attr/colorPrimary"
                 app:menu="@menu/toolbar_menu"
                 app:title="SSMS"
+                app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge"
+                app:subtitleTextColor="#DEDADA"
+                app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
                 app:titleTextColor="@android:color/white" />
         </com.google.android.material.appbar.AppBarLayout>
 
