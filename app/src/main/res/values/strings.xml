@@ -14,4 +14,6 @@
     <string name="desc_fourth">Join a growing community of farmers using technology to improve agriculture. Transform the way you monitor soil health!</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="about_moisture">The optimal range for most crops is between 50–75% of field capacity (the soil\'s water-holding capacity).Too little moisture (less than 50%) causes drought stress, while excess moisture (>90%) leads to waterlogging and root diseases.</string>
+
 </resources>
