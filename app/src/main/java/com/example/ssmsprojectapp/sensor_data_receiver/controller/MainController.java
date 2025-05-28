@@ -148,4 +148,11 @@ public class MainController {
         }
     }
 
+    public void onDestroy() {
+        try {
+            context.unregisterReceiver(receiver);
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
 }
