@@ -113,5 +113,27 @@ public class MainController {
         bluetoothAdapter.startDiscovery();
     }
 
+    @SuppressLint("MissingPermission")
+    public void connectToDevice(BluetoothDevice device) {
+        view.setStatus("Connecting to " + device.getName() + "...");
+
+        new Thread(() -> {
+            try {
+                bluetoothSocket = device.createRfcommSocketToServiceRecord(MY_UUID);
+                bluetoothAdapter.cancelDiscovery();
+                bluetoothSocket.connect();
+
+                ((android.app.Activity) context).runOnUiThread(() -> view.setStatus("Connected to " + device.getName()));
+
+                connectedThread = new ConnectedThread(bluetoothSocket);
+                connectedThread.start();
+
+            } catch (IOException e) {
+                ((android.app.Activity) context).runOnUiThread(() -> view.setStatus("Connection Failed"));
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
 
 }
