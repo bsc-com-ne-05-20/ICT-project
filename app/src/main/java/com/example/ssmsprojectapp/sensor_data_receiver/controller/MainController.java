@@ -179,5 +179,52 @@ public class MainController {
         }
     };
 
+private class ConnectedThread extends Thread {
+    private final InputStream inStream;
+
+    public ConnectedThread(BluetoothSocket socket) {
+        InputStream tmpIn = null;
+        try {
+            tmpIn = socket.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        inStream = tmpIn;
+    }
+
+    @Override
+    public void run() {
+        byte[] buffer = new byte[1024];
+        int bytes;
+
+        while (true) {
+            try {
+                bytes = inStream.read(buffer);
+                String incoming = new String(buffer, 0, bytes);
+
+                try {
+                    SensorData data = SensorData.fromJson(incoming);
+
+                    ((android.app.Activity) context).runOnUiThread(() -> view.updateSensorData(data));
+                } catch (JSONException e) {
+                    // Optional: log or show toast
+                }
+            } catch (IOException e) {
+                ((android.app.Activity) context).runOnUiThread(() -> view.setStatus("Connection Lost"));
+                break;
+            }
+        }
+    }
+
+        public void cancel() {
+            try {
+                bluetoothSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
 }
