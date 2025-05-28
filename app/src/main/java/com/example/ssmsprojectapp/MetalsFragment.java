@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ssmsprojectapp.databasehelpers.MeasurementDbHelper;
 import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -31,7 +32,9 @@ public class MetalsFragment extends Fragment {
     private LineChart metalsChart;
 
 
-    private List<Measurement> measurementList = new ArrayList<>();
+    private List<Measurement> measurementList;
+
+    private MeasurementDbHelper measurementDbHelper;
 
     public MetalsFragment() {
         // Required empty public constructor
@@ -48,6 +51,11 @@ public class MetalsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_metals, container, false);
 
+        measurementDbHelper = new MeasurementDbHelper(getContext());
+
+        measurementList = new ArrayList<>();
+        getMeasurements();
+
         metalsChart = view.findViewById(R.id.metals_chart);
         setupMetalsChart();
 
@@ -55,6 +63,11 @@ public class MetalsFragment extends Fragment {
         loadMetalsData();
 
         return view;
+    }
+
+    private void getMeasurements() {
+        measurementList.clear();
+        measurementList = measurementDbHelper.getAllMeasurements();
     }
 
     private void setupMetalsChart() {
@@ -93,7 +106,7 @@ public class MetalsFragment extends Fragment {
         }
 
 
-        LineDataSet dataSet = new LineDataSet(entries, "Soil salinity (%)");
+        LineDataSet dataSet = new LineDataSet(entries, "Metals (%)");
         dataSet.setColor(Color.BLUE);
         dataSet.setLineWidth(2f);
         dataSet.setCircleColor(Color.BLUE);

@@ -46,7 +46,7 @@ public class AgriChatbot extends AppCompatActivity {
     private List<Message> messages = new ArrayList<>();
 
     private LinearLayout welcome_layout;
-    private ScrollView scrollView;
+    private LinearLayout scrollView;
 
     private RecyclerView suggestionsRecycler;
 

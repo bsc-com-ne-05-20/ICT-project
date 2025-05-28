@@ -8,4 +8,10 @@
         android:icon="@drawable/baseline_notifications_24_white"
         android:iconTint="@color/white"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/settings"
+        android:title="notification"
+        android:icon="@drawable/baseline_manage_accounts_24"
+        android:iconTint="@color/white"
+        app:showAsAction="ifRoom"/>
 </menu>

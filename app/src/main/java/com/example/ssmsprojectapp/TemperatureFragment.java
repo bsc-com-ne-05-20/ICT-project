@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ssmsprojectapp.databasehelpers.MeasurementDbHelper;
 import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -29,7 +30,9 @@ import java.util.Locale;
 public class TemperatureFragment extends Fragment {
 
     private LineChart temperatureChart;
-    private List<Measurement> measurementList = new ArrayList<>();
+    private List<Measurement> measurementList;
+
+    private MeasurementDbHelper measurementDbHelper;
 
     public TemperatureFragment(){
     }
@@ -44,10 +47,20 @@ public class TemperatureFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_temperature, container, false);
 
+        measurementDbHelper = new MeasurementDbHelper(getContext());
+
+        measurementList = new ArrayList<>();
+        getMeasurements();
+
         temperatureChart = view.findViewById(R.id.temperature_chart);
         setupTemperatureChart();
         loadTemperatureData();
         return view;
+    }
+
+    private void getMeasurements() {
+        measurementList.clear();
+        measurementList = measurementDbHelper.getAllMeasurements();
     }
 
 

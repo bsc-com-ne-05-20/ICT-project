@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.ssmsprojectapp.databasehelpers.MeasurementDbHelper;
 import com.example.ssmsprojectapp.datamodels.Farm;
 import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
 import com.example.ssmsprojectapp.datamodels.Measurement;
@@ -94,6 +95,9 @@ public class HomeFragment extends Fragment {
 
     private Button btnAnalytics;
 
+    //database
+    private MeasurementDbHelper measurementDb;
+
     //passing of data
     private MeasurementsListDataListener measurementListDataListener;
 
@@ -118,6 +122,9 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view= inflater.inflate(R.layout.fragment_home, container, false);
+
+        //init database helper
+        measurementDb = new MeasurementDbHelper(getContext());
 
         //init the layout
         linearLayout = view.findViewById(R.id.homepage_layout);
@@ -154,7 +161,7 @@ public class HomeFragment extends Fragment {
             String email = user.getEmail();        // Farmer's email
             name = user.getDisplayName();   // Farmer's name
             String uid = user.getUid();// Unique user ID
-            farmerName.setText("Hi " + name + ",d");
+            farmerName.setText("Hi " + name + ",");
         }
         TextView greeting = view.findViewById(R.id.greeting_text);
         greeting.setText(getMessage());
@@ -221,9 +228,14 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!currMeasurements.isEmpty()){
-                    String jsonList = gson.toJson(currMeasurements);
-                    prefs.edit().putString("temp_list", jsonList).apply();
-                    startActivity(new Intent(view.getContext(), Graphs.class));
+                    if (!measurementDb.isDatabaseEmpty()){
+                        measurementDb.clearAllMeasurements();
+                    }
+
+                    for (Measurement m : currMeasurements) {
+                        measurementDb.insertMeasurement(m);
+                    }
+                    startActivity(new Intent(getActivity(), Graphs.class));
                 }
                 else {
                     Toast.makeText(getContext(), "Empty measurement List", Toast.LENGTH_SHORT).show();

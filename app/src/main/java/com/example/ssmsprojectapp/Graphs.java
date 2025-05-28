@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.ssmsprojectapp.databasehelpers.MeasurementDbHelper;
 import com.example.ssmsprojectapp.datamodels.Measurement;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.reflect.TypeToken;
@@ -30,6 +31,8 @@ public class Graphs extends AppCompatActivity{
 
     private List<Measurement> measurements;
 
+    private  MeasurementDbHelper measurementDbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,18 +44,15 @@ public class Graphs extends AppCompatActivity{
             return insets;
         });
 
-        //get the data from shared preference
-        SharedPreferences prefs = getSharedPreferences("TempStorage", MODE_PRIVATE);
-        String jsonList = prefs.getString("temp_list", null);
-        Type type = new TypeToken<List<Measurement>>(){}.getType();
-        //get the data
-        measurements = new Gson().fromJson(jsonList, type);
+        measurementDbHelper = new MeasurementDbHelper(this);
+
+        measurements = new ArrayList<>();
+
+        getMeasurements();
 
         if (measurements.isEmpty()){
             Toast.makeText(this, "Hey i didnt get the data", Toast.LENGTH_SHORT).show();
         }
-        //
-        prefs.edit().remove("temp_list").apply();
 
         // Setup ViewPager and TabLayout
         viewPager = findViewById(R.id.view_pager);
@@ -66,15 +66,20 @@ public class Graphs extends AppCompatActivity{
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    public void getMeasurements(){
+        measurements.clear();
+        measurements.addAll(measurementDbHelper.getAllMeasurements());
+    }
+
     private void setupViewPager() {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         // Add tabs for each parameter
         adapter.addFragment(new MoistureFragment(), "Moisture");
-        adapter.addFragment(new TemperatureFragment(measurements), "Temperature");
-        adapter.addFragment(new NutrientsFragment(measurements), "Nutrients");
-        adapter.addFragment(new SalinityFragment(measurements), "Salinity");
-        adapter.addFragment(new MetalsFragment(measurements), "Metals");
+        //adapter.addFragment(new PhFragment(), "Ph");
+        adapter.addFragment(new NutrientsFragment(), "Nutrients");
+        adapter.addFragment(new SalinityFragment(), "Salinity");
+        //adapter.addFragment(new MetalsFragment(measurements), "Metals");
 
         viewPager.setAdapter(adapter);
     }

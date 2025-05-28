@@ -47,7 +47,6 @@ import java.util.Map;
 
 public class HomePage extends AppCompatActivity implements HomeFragment.MeasurementsListDataListener{
 
-    private FloatingActionButton fab;
     private LinearLayout home,profile;
 
     //database
@@ -102,8 +101,16 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
         transaction.add(R.id.container,new HomeFragment(repository,currentFarmerId));
         transaction.commit();
 
-        //ii=nit fabs
+        //init fabs
         addmeasurement = findViewById(R.id.add_fab);
+        addmeasurement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, MeasurementsPage.class));
+            }
+        });
+
+
         goToChatbot = findViewById(R.id.go_to_chat);
 
         goToChatbot.setOnClickListener(new View.OnClickListener() {
@@ -178,24 +185,49 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
         dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 
+    public void openAccountSettings(){
+
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.account_settings_layout);
+
+        //init the layout components here
+
+        LinearLayout logout =  findViewById(R.id.logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomePage.this, Login2.class));
+            }
+        });
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.dialoganimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+
     @Override
     public void onBackPressed() {
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Exit App");
-        builder.setMessage("Do want to exit the app?");
-        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-        });
-        builder.setNegativeButton("No",null);
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.show();
-
-        super.onBackPressed();
+        new AlertDialog.Builder(this)
+                .setTitle("Exit App")
+                .setMessage("Do you want to exit the app?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // 1. Dismiss dialog first
+                    dialog.dismiss();
+                    // 2. Then call super
+                    super.onBackPressed();
+                    // 3. Optional animation
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    // Simply dismiss on "No"
+                    dialog.dismiss();
+                })
+                .setCancelable(false) // Prevent dismissing by tapping outside
+                .show();
     }
 
 
@@ -219,14 +251,16 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
                    .commit();
             return true;
         }
-        /*else if (id == R.id.add) {
-            // Handle search action
-            startActivity(new Intent(HomePage.this, MeasurementsPage.class));
+        else if (id == R.id.settings) {
+            // Handle settings
+            openAccountSettings();
             return true;
-        }*/
+        }
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
     private void loadMeasurements(String farmId) {
         repository.getMeasurementsByFarm(farmId, task -> {
