@@ -225,7 +225,8 @@ public class FirestoreRepository {
                 snapshot.getDouble("nitrogen"),
                 snapshot.getDouble("phosphorus"),
                 snapshot.getDouble("potassium"),
-                snapshot.getString("metals")
+                snapshot.getString("metals"),
+                snapshot.getDate("timestamp")
         );
     }
 }
