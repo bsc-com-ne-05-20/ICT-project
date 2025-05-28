@@ -1,5 +1,7 @@
 package com.example.ssmsprojectapp.datamodels;
 
+import com.google.firebase.Timestamp;
+
 import java.util.Date;
 
 public class Measurement {
@@ -30,7 +32,21 @@ public class Measurement {
         this.phosphorus = phosphorus;
         this.potassium = potassium;
         this.metals = metals;
-        this.timestamp = new Date();  // Auto-set current time
+        this.timestamp = Timestamp.now().toDate();  // Auto-set current time
+    }
+
+    public Measurement(String id, String farmId, Double salinity, Double moisture, Double temperature, Double ph, Double nitrogen, Double phosphorus, Double potassium, String metals, Date timestamp) {
+        this.id = id;
+        this.farmId = farmId;
+        this.salinity = salinity;
+        this.moisture = moisture;
+        this.temperature = temperature;
+        this.ph = ph;
+        this.nitrogen = nitrogen;
+        this.phosphorus = phosphorus;
+        this.potassium = potassium;
+        this.metals = metals;
+        this.timestamp = timestamp;
     }
 
     public String getId() {
