@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="potassiumValue" type="id" />
+    <item name="locationValue" type="id" />
+    <item name="sensorCard" type="id" />
+    <item name="nitrogenValue" type="id" />
+    <item name="phosphorusValue" type="id" />
+    <item name="phValue" type="id" />
+    <item name="moistureValue" type="id" />
+    <item name="temperatureValue" type="id" />
+    <item name="ecValue" type="id" />
+</resources>
