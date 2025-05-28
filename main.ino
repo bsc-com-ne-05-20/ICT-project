@@ -34,3 +34,29 @@ pinMode(MODEM_PWRKEY, OUTPUT);
 
   Serial.println("Soil Monitoring System Initialized");
 }
+
+int readSensor(const byte* command) {
+  byte response[7];
+  int attempt = 0;
+  bool validResponse = false;
+
+  while (attempt < 3 && !validResponse) {
+    digitalWrite(RS485_RE, HIGH);
+    delay(10);
+    RS485Serial.write(command, 8);
+    RS485Serial.flush();
+    digitalWrite(RS485_RE, LOW);
+    delay(100);
+
+    if (RS485Serial.available() >= 7) {
+      for (int i = 0; i < 7; i++) response[i] = RS485Serial.read();
+      if ((response[5] == 0x00) && (response[6] == 0x00)) { // CRC check
+        validResponse = true;
+        return (response[3] << 8) | response[4];
+      }
+    }
+    attempt++;
+    delay(50);
+  }
+  return -9999; // Error value
+}
