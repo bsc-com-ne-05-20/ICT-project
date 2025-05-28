@@ -155,4 +155,29 @@ public class MainController {
         }
     }
 
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device != null && device.getName() != null) {
+                    if (!deviceList.contains(device)) {
+                        deviceList.add(device);
+                        view.addDevice(device.getName() + "\n" + device.getAddress());
+
+                        view.getDeviceListView().setOnItemClickListener((parent, view1, position, id) -> {
+                            connectToDevice(deviceList.get(position));
+                        });
+                    }
+                }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                ((android.app.Activity) context).runOnUiThread(() -> view.setStatus("Scan complete"));
+            }
+        }
+    };
+
+
 }
