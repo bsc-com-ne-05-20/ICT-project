@@ -60,3 +60,32 @@ int readSensor(const byte* command) {
   }
   return -9999; // Error value
 }
+
+void loop() {
+  // Read sensor values with error checking
+  float moisture = readSensor(cmdMoisture) / 10.0;
+  float temperature = readSensor(cmdTemperature) / 10.0;
+  float ec = readSensor(cmdEC);
+  float ph = readSensor(cmdPH) / 10.0;
+  int nitrogen = readSensor(cmdN);
+  int phosphorus = readSensor(cmdP);
+  int potassium = readSensor(cmdK);
+
+  // Validate readings before transmission
+  if (moisture == -9999 || temperature == -9999 || ec == -9999 || 
+      ph == -9999 || nitrogen == -9999 || phosphorus == -9999 || potassium == -9999) {
+    Serial.println("Error: Failed to read one or more sensors");
+    return;
+  }
+
+  // Build JSON payload
+  String jsonData = "{";
+  jsonData += "\"moisture\":" + String(moisture, 1) + ",";
+  jsonData += "\"temperature\":" + String(temperature, 1) + ",";
+  jsonData += "\"ec\":" + String(ec, 1) + ",";
+  jsonData += "\"ph\":" + String(ph, 1) + ",";
+  jsonData += "\"nitrogen\":" + String(nitrogen) + ",";
+  jsonData += "\"phosphorus\":" + String(phosphorus) + ",";
+  jsonData += "\"potassium\":" + String(potassium);
+  jsonData += "}";
+
