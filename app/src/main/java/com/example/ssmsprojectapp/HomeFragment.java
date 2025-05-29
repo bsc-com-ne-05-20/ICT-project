@@ -98,6 +98,9 @@ public class HomeFragment extends Fragment {
     //database
     private MeasurementDbHelper measurementDb;
 
+
+    //linearlayouts
+    private LinearLayout linearLayoutTop,linearLayoutStatus,linearLayoutBottom;
     //passing of data
     private MeasurementsListDataListener measurementListDataListener;
 
@@ -122,6 +125,13 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view= inflater.inflate(R.layout.fragment_home, container, false);
+
+
+        //init layouts
+        linearLayoutTop = view.findViewById(R.id.linearLayout1);
+        linearLayoutBottom = view.findViewById(R.id.linearLayout2);
+        linearLayoutStatus = view.findViewById(R.id.no_measurement_found);
+
 
         //init database helper
         measurementDb = new MeasurementDbHelper(getContext());
@@ -199,7 +209,12 @@ public class HomeFragment extends Fragment {
         seeAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(view.getContext(), SeeAllMeasurements.class));
+                //startActivity(new Intent(view.getContext(), SeeAllMeasurements.class));
+
+                Intent intent = new Intent(view.getContext(), SeeAllMeasurements.class);
+                intent.putParcelableArrayListExtra("ALL_MEASUREMENTS",new ArrayList<>(currMeasurements));
+                intent.putExtra("FARM_NAME", selectedFarmName);
+                startActivity(intent);
             }
         });
 
@@ -242,6 +257,10 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+
+
+
+
         return view;
 
     }
@@ -273,15 +292,14 @@ public class HomeFragment extends Fragment {
         recyclerFarms.setLayoutManager(new LinearLayoutManager(v.getContext(),LinearLayoutManager.VERTICAL,false));
         recyclerFarms.setAdapter(homeFarmAdapter);
 
-        loadFarms(v);
+        loadFarms2(v);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dismissAlertDialog();
             }
         });
-        builder.setNegativeButton("Cancel", null);
         builder.setCancelable(true);
 
         // Create the AlertDialog object and show it
@@ -303,9 +321,8 @@ public class HomeFragment extends Fragment {
         currentLatitude = farm.getLatitude();
         currentLongitude = farm.getLongitude();
 
-        //fetch weather data
-        fetchWeatherData(currentLatitude, currentLongitude);
 
+        dismissAlertDialog();
         //update ui
 
         requireActivity().runOnUiThread(new Runnable() {
@@ -316,11 +333,33 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
+        //fetch weather data
+        fetchWeatherData(currentLatitude, currentLongitude);
         loadMeasurements(selectedFarmId);
 
-        //dimiss the dialog
-        //dismissAlertDialog();
+
+    }
+
+    public void loadFarms2(View view){
+
+        repository.getFarmsByFarmer(currentFarmerId, task -> {
+
+            //dismiss the dialog
+            progressDialog.dismiss();
+
+            if (task.isSuccessful()) {
+                List<Farm> farms = new ArrayList<>();
+                for (DocumentSnapshot document : task.getResult()) {
+                    farms.add(repository.snapshotToFarm(document));
+                }
+
+                homeFarmAdapter.updateFarmData(farms);
+
+            } else {
+                Toast.makeText(view.getContext(), "Failed to load farms: " + task.getException().getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     private void loadFarms(View view) {
 
@@ -348,7 +387,6 @@ public class HomeFragment extends Fragment {
                 else {
                     //show the no farms dialog view
                     linearLayout.setVisibility(View.INVISIBLE);
-                    noFarmsDialog(view);
                 }
             } else {
                 Toast.makeText(view.getContext(), "Failed to load farms: " + task.getException().getMessage(),
@@ -373,6 +411,7 @@ public class HomeFragment extends Fragment {
                 if (!measurements.isEmpty()){
                     Measurement latestMeasurement = measurements.get(0);
 
+                    currMeasurements = measurements;
 
                     // Update UI with measurements
                     requireActivity().runOnUiThread(new Runnable() {
@@ -387,13 +426,14 @@ public class HomeFragment extends Fragment {
                         }
                     });
 
-                    //send measurement list to activity
-                    sendListToActivity(measurements);
+                }
+                else { //add else to handle the case where the farm is just created and there is no measurements yet
 
-                    currMeasurements = measurements;
+                    linearLayoutTop.setVisibility(View.GONE);
+                    linearLayoutBottom.setVisibility(View.GONE);
+                    linearLayoutStatus.setVisibility(View.VISIBLE);
 
                 }
-                //add else to handle the case where the farm is just created and there is no measurements yet
 
 
 
@@ -421,13 +461,13 @@ public class HomeFragment extends Fragment {
         TextView phosphorous = dialogView.findViewById(R.id.tvphosphorous);
         TextView potassium = dialogView.findViewById(R.id.tvpotassium);
 
-        date1.setText(measurement.getTimestamp().toString());
+        date1.setText(measurement.getTimestamp().toLocaleString());
         ph.setText(measurement.getPh()+"");
-        salinity.setText(measurement.getSalinity()+"");
-        moisture.setText(measurement.getMoisture()+"");
-        nitrogen.setText(measurement.getNitrogen()+"");
-        phosphorous.setText(measurement.getPh()+"");
-        potassium.setText(measurement.getPotassium()+"");
+        salinity.setText(measurement.getSalinity()+" dS/m");
+        moisture.setText(measurement.getMoisture()+" %");
+        nitrogen.setText(measurement.getNitrogen()+" ppm");
+        phosphorous.setText(measurement.getPh()+" ppm");
+        potassium.setText(measurement.getPotassium()+" ppm");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -436,26 +476,6 @@ public class HomeFragment extends Fragment {
             }
         });
         builder.show();
-    }
-
-
-    public void statsDialog(View view,String param){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-        builder.setTitle("Notification");
-        builder.setMessage("Data for " + param + " is currently unavailable");
-        builder.setCancelable(false);
-
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-               dialog.dismiss();
-            }
-        });
-
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     //the m
@@ -492,76 +512,7 @@ public class HomeFragment extends Fragment {
         progressDialog.dismiss();
     }
 
-    //adding farms and new farmer methods
-    @SuppressLint("MissingInflatedId")
-    private void noFarmsDialog(View v){
-        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.no_farms_dialog_layout, null);
-        builder.setView(dialogView);
-        builder.setCancelable(false);
-
-        TextView farmerName = dialogView.findViewById(R.id.farmers_name);
-        farmerName.setText(name);
-        Button addfarm = dialogView.findViewById(R.id.button_add_farm);
-        addfarm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddFarmDialog(v);
-            }
-        });
-        builder.show();
-    }
-    private void showAddFarmDialog(View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-        builder.setTitle("Add New Farm");
-
-        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.add_farm_dialog, null);
-        builder.setView(dialogView);
-
-        EditText latitudeEditText = dialogView.findViewById(R.id.latitude_edit_text);
-        EditText longitudeEditText = dialogView.findViewById(R.id.longitude_edit_text);
-        EditText soilTypeEditText = dialogView.findViewById(R.id.soil_type_edit_text);
-        EditText metalsEditText = dialogView.findViewById(R.id.metals_edit_text);
-        EditText nameEditText = dialogView.findViewById(R.id.name_edit_text);
-        EditText locationEditText = dialogView.findViewById(R.id.location_edit_text);
-        EditText sizeEditText = dialogView.findViewById(R.id.size_edit_text);
-        EditText cropsEditText = dialogView.findViewById(R.id.primaryCrops_edit_text);
-
-        builder.setPositiveButton("Add", (dialog, which) -> {
-            try {
-                double latitude = Double.parseDouble(latitudeEditText.getText().toString());
-                double longitude = Double.parseDouble(longitudeEditText.getText().toString());
-                String soilType = soilTypeEditText.getText().toString();
-                String metals = metalsEditText.getText().toString();
-                String name = nameEditText.getText().toString();
-                String location = locationEditText.getText().toString();
-                String size = sizeEditText.getText().toString();
-                String crops = cropsEditText.getText().toString();
-
-                Farm newFarm = new Farm("", currentFarmerId, latitude, longitude, soilType, metals,name,size,crops,location);
-                addFarm(newFarm,v);
-            } catch (NumberFormatException e) {
-                Toast.makeText(v.getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    private void addFarm(Farm farm,View v) {
-        showProgress(v,"adding farm...");
-        repository.addFarm(
-                farm,
-                documentReference -> {
-                    Toast.makeText(v.getContext(), "Farm added successfully", Toast.LENGTH_SHORT).show();
-                    loadFarms(v); // Refresh the list
-                },
-                e -> {
-                    Toast.makeText(v.getContext(), "Error adding farm: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-        );
-    }
+    
 
     //weather methods
 

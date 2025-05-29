@@ -10,10 +10,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pre-Measurement data"
+        android:text="Add Farm"
         android:layout_margin="15dp"
         android:textSize="20sp"
-        android:textColor="@color/yellow"
+        android:textColor="@color/main_color"
         android:textStyle="bold"
         android:textAlignment="center"/>
 
@@ -51,12 +51,12 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/firstName"
+            android:id="@+id/farm_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:inputType="textAutoComplete"
-            android:hint="First name" />
+            android:hint="Farm size" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -72,12 +72,12 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/LastName"
+            android:id="@+id/primaryCrops"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:inputType="textAutoComplete"
-            android:hint="last name" />
+            android:hint="Primary crops" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -93,12 +93,32 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/Physical_location"
+            android:id="@+id/soil_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:inputType="textAutoComplete"
-            android:hint="physical location" />
+            android:hint="Soil type" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox.Dense"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        app:counterEnabled="true"
+        app:counterMaxLength="60"
+        app:boxCornerRadiusBottomEnd="5dp"
+        app:endIconMode="clear_text"
+        >
+
+        <AutoCompleteTextView
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:id="@+id/et_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Location" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -114,12 +134,12 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phone"
+            android:id="@+id/latitude"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:inputType="phone"
-            android:hint="phone number eg 099xxx" />
+            android:inputType="numberSigned"
+            android:hint="Latitude" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -135,23 +155,13 @@
         >
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phone2"
+            android:id="@+id/longitude"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:inputType="phone"
-            android:hint="phone number (optional)" />
+            android:inputType="numberSigned"
+            android:hint="Longitude" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <CheckBox
-        android:id="@+id/checkBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:textSize="18sp"
-        android:textColor="@color/black"
-        android:text="create account for this farm" />
 
     <CheckBox
         android:id="@+id/take_coordinates"
@@ -160,7 +170,7 @@
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         android:textSize="18sp"
-        android:textColor="#7183ED"
+        android:textColor="@color/main_color"
         android:text="Take coordinates"
         android:textStyle="bold"/>
 
@@ -173,12 +183,11 @@
         android:gravity="end">
 
         <Button
-            style="@style/Widget.AppCompat.Button"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            app:backgroundTint="#FD3434"
             android:textAllCaps="false"
             android:text="Cancel" />
 
@@ -189,7 +198,7 @@
             android:layout_height="wrap_content"
             android:textAllCaps="false"
             android:layout_margin="5dp"
-            android:text="Proceed" />
+            android:text="Add" />
     </LinearLayout>
 
 </LinearLayout>

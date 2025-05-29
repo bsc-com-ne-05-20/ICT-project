@@ -1,10 +1,13 @@
 package com.example.ssmsprojectapp.datamodels;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.Timestamp;
 
 import java.util.Date;
 
-public class Measurement {
+public class Measurement implements Parcelable {
     private String id;  // Firestore document ID
     private String farmId;  // Reference to farm
     private double salinity;
@@ -48,6 +51,54 @@ public class Measurement {
         this.metals = metals;
         this.timestamp = timestamp;
     }
+
+    protected Measurement(Parcel in) {
+        id = in.readString();
+        farmId = in.readString();
+        salinity = in.readDouble();
+        moisture = in.readDouble();
+        temperature = in.readDouble();
+        ph = in.readDouble();
+        nitrogen = in.readDouble();
+        phosphorus = in.readDouble();
+        potassium = in.readDouble();
+        metals = in.readString();
+        // Add timestamp reading
+        long time = in.readLong();
+        this.timestamp = time == -1 ? null : new Date(time);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(farmId);
+        dest.writeDouble(salinity);
+        dest.writeDouble(moisture);
+        dest.writeDouble(temperature);
+        dest.writeDouble(ph);
+        dest.writeDouble(nitrogen);
+        dest.writeDouble(phosphorus);
+        dest.writeDouble(potassium);
+        dest.writeString(metals);
+        dest.writeLong(timestamp != null ? timestamp.getTime() : -1);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Measurement> CREATOR = new Creator<Measurement>() {
+        @Override
+        public Measurement createFromParcel(Parcel in) {
+            return new Measurement(in);
+        }
+
+        @Override
+        public Measurement[] newArray(int size) {
+            return new Measurement[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -136,4 +187,6 @@ public class Measurement {
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
+
+
 }

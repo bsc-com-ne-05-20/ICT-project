@@ -58,7 +58,7 @@ public class AgriChatbot extends AppCompatActivity {
 
     // Update with your Render URL
     //https://cornelliusbonongwe-agrichatbot.hf.space/ask
-    private static final String RENDER_URL = "https://shimschat-13.onrender.com/ask";
+    private static final String RENDER_URL = "https://shimschat-15.onrender.com/ask";
     private static final int TIMEOUT = 20000; // 10 seconds
 
     @SuppressLint("MissingInflatedId")

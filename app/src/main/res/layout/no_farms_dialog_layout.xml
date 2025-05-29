@@ -44,10 +44,10 @@
             android:textSize="15sp"
             android:padding="5dp"
             android:textColor="#495649"
-            android:text="please add a farm to start using the amazing feature of the application" />
+            android:text=" You have no Farms yet!" />
 
         <Button
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/button_add_farm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

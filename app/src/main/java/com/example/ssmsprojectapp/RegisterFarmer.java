@@ -106,19 +106,21 @@ public class RegisterFarmer extends AppCompatActivity {
                 firestoreRepository.registerFarmerWithAuth(email, password, farmer, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Toast.makeText(RegisterFarmer.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+
+                        startActivity(new Intent(RegisterFarmer.this, Login2.class));
                     }
                 }, new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
 
-                        startActivity(new Intent(RegisterFarmer.this, Login2.class));
+                        Toast.makeText(RegisterFarmer.this, "Registration successful!", Toast.LENGTH_SHORT).show();
 
                     }
                 }, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
 
+                        Toast.makeText(RegisterFarmer.this, "Registration Failed! please try again.", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

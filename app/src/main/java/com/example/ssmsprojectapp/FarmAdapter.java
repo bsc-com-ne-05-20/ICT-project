@@ -62,18 +62,11 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
     }
 
     static class FarmViewHolder extends RecyclerView.ViewHolder {
-        private TextView locationTextView;
-        private TextView soilTypeTextView;
-        private TextView metalsTextView;
-
-        private TextView placeName;
-        private MapView mapView;
+        private TextView farmName;
 
         public FarmViewHolder(@NonNull View itemView) {
             super(itemView);
-            locationTextView = itemView.findViewById(R.id.farm_location);
-            soilTypeTextView = itemView.findViewById(R.id.farm_soil_type);
-            metalsTextView = itemView.findViewById(R.id.farm_metals);
+            farmName = itemView.findViewById(R.id.farm_name);
 
 
 
@@ -82,9 +75,7 @@ public class FarmAdapter extends RecyclerView.Adapter<FarmAdapter.FarmViewHolder
 
 
         public void bind(Farm farm) {
-            locationTextView.setText(String.format("Location: %.4f, %.4f", farm.getLatitude(), farm.getLongitude()));
-            soilTypeTextView.setText(String.format("Soil Type: %s", farm.getSoilType()));
-            metalsTextView.setText("none");
+            farmName.setText(farm.getFarmName());
         }
 
 

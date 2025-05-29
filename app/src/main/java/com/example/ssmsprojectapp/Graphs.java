@@ -76,7 +76,7 @@ public class Graphs extends AppCompatActivity{
 
         // Add tabs for each parameter
         adapter.addFragment(new MoistureFragment(), "Moisture");
-        //adapter.addFragment(new PhFragment(), "Ph");
+        adapter.addFragment(new PhFragment(), "Ph");
         adapter.addFragment(new NutrientsFragment(), "Nutrients");
         adapter.addFragment(new SalinityFragment(), "Salinity");
         //adapter.addFragment(new MetalsFragment(measurements), "Metals");
