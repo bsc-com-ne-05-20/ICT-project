@@ -73,7 +73,7 @@ public class MeasurementsAdapter extends RecyclerView.Adapter<MeasurementsAdapte
         }
 
         public void bind(Measurement measurement) {
-            date.setText(measurement.getTimestamp().toString());
+            date.setText(measurement.getTimestamp().toLocaleString());
         }
     }
 }
