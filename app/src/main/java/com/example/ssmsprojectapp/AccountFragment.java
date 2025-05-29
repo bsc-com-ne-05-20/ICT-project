@@ -1,7 +1,11 @@
 package com.example.ssmsprojectapp;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -9,11 +13,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,14 +33,28 @@ import com.example.ssmsprojectapp.datamodels.Farm;
 import com.example.ssmsprojectapp.datamodels.Farmer;
 import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
 import com.example.ssmsprojectapp.datamodels.Measurement;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class AccountFragment extends Fragment {
+
+    private AutoCompleteTextView etLocation;
+    private TextView tvCoordinates;
+    private PlacesClient placesClient;
+    private ArrayAdapter<String> adapter;
+    private List<AutocompletePrediction> predictionList;
 
     private RecyclerView farmsRecycler, measurementsRecycler;
 
@@ -98,7 +123,7 @@ public class AccountFragment extends Fragment {
         addfarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddFarmDialog(v);
+                onOpenAddnewFarm(v);
             }
         });
 
@@ -230,13 +255,13 @@ public class AccountFragment extends Fragment {
         TextView phosphorous = dialogView.findViewById(R.id.tvphosphorous);
         TextView potassium = dialogView.findViewById(R.id.tvpotassium);
 
-        //date.setText(measurement.getTimestamp().getDate());
+        date.setText(measurement.getTimestamp().toLocaleString());
         ph.setText(measurement.getPh()+"");
-        salinity.setText(measurement.getSalinity()+"");
-        moisture.setText(measurement.getMoisture()+"");
-        nitrogen.setText(measurement.getNitrogen()+"");
-        phosphorous.setText(measurement.getPh()+"");
-        potassium.setText(measurement.getPotassium()+"");
+        salinity.setText(measurement.getSalinity()+" dS/m");
+        moisture.setText(measurement.getMoisture()+" %");
+        nitrogen.setText(measurement.getNitrogen()+" ppm");
+        phosphorous.setText(measurement.getPh()+" ppm");
+        potassium.setText(measurement.getPotassium()+" ppm");
 
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -281,41 +306,133 @@ public class AccountFragment extends Fragment {
     }
 
     @SuppressLint("MissingInflatedId")
-    private void showAddFarmDialog(View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-        builder.setTitle("Add New Farm");
+    private void onOpenAddnewFarm(View v) {
 
-        View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.add_farm_dialog, null);
-        builder.setView(dialogView);
+        Dialog dialog = new Dialog(v.getContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.add_new_farm_layout);
 
-        EditText latitudeEditText = dialogView.findViewById(R.id.latitude_edit_text);
-        EditText longitudeEditText = dialogView.findViewById(R.id.longitude_edit_text);
-        EditText soilTypeEditText = dialogView.findViewById(R.id.soil_type_edit_text);
-        EditText metalsEditText = dialogView.findViewById(R.id.metals_edit_text);
-        EditText nameEditText = dialogView.findViewById(R.id.name_edit_text);
-        EditText locationEditText = dialogView.findViewById(R.id.location_edit_text);
-        EditText sizeEditText = dialogView.findViewById(R.id.size_edit_text);
-        EditText cropsEditText = dialogView.findViewById(R.id.primaryCrops_edit_text);
+        //init the layout components here
 
-        builder.setPositiveButton("Add", (dialog, which) -> {
-            try {
-                double latitude = Double.parseDouble(latitudeEditText.getText().toString());
-                double longitude = Double.parseDouble(longitudeEditText.getText().toString());
-                String soilType = soilTypeEditText.getText().toString();
-                String metals = metalsEditText.getText().toString();
-                String name = nameEditText.getText().toString();
-                String location = locationEditText.getText().toString();
-                String size = sizeEditText.getText().toString();
-                String crops = cropsEditText.getText().toString();
+        CheckBox take_measurement = dialog.findViewById(R.id.take_coordinates);
 
-                Farm newFarm = new Farm("", currUserID, latitude, longitude, soilType, metals,name,size,crops,location);
-                addFarm(newFarm,v);
-            } catch (NumberFormatException e) {
-                Toast.makeText(v.getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
+        //edittexts
+        TextInputEditText farmName = dialog.findViewById(R.id.farm_name);
+        TextInputEditText farmSize = dialog.findViewById(R.id.farm_size);
+        TextInputEditText crops = dialog.findViewById(R.id.primaryCrops);
+        TextInputEditText soilType = dialog.findViewById(R.id.soil_type);
+        etLocation = dialog.findViewById(R.id.et_location);
+        TextInputEditText latitude = dialog.findViewById(R.id.latitude);
+        TextInputEditText longitude = dialog.findViewById(R.id.longitude);
+
+
+        //autoComplete code starts here
+
+        // Initialize Places
+        if (!Places.isInitialized()) {
+            Places.initialize(v.getContext(), "AIzaSyCKbTcYsUUH6wpT8F2N5eUR7rr_hAUE2b8");
+        }
+        placesClient = Places.createClient(v.getContext());
+
+        adapter = new ArrayAdapter<>(v.getContext(), android.R.layout.simple_dropdown_item_1line);
+        etLocation.setAdapter(adapter);
+
+        // Listen for text input
+        etLocation.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().isEmpty()) {
+                    FindAutocompletePredictionsRequest request =
+                            FindAutocompletePredictionsRequest.builder()
+                                    .setQuery(s.toString())
+                                    .build();
+
+                    placesClient.findAutocompletePredictions(request)
+                            .addOnSuccessListener(response -> {
+                                predictionList = response.getAutocompletePredictions();
+                                List<String> suggestions = new ArrayList<>();
+                                for (AutocompletePrediction prediction : predictionList) {
+                                    suggestions.add(prediction.getFullText(null).toString());
+                                }
+                                adapter.clear();
+                                adapter.addAll(suggestions);
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
+                }
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        etLocation.setOnItemClickListener((parent, view, position, id) -> {
+            if (predictionList != null && position < predictionList.size()) {
+                String placeId = predictionList.get(position).getPlaceId();
+                List<Place.Field> placeFields = Arrays.asList(Place.Field.LAT_LNG, Place.Field.NAME);
+
+                FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, placeFields).build();
+                placesClient.fetchPlace(placeRequest)
+                        .addOnSuccessListener(fetchPlaceResponse -> {
+                            Place place = fetchPlaceResponse.getPlace();
+                            if (place.getLatLng() != null) {
+                                double lati = place.getLatLng().latitude;
+                                double lng = place.getLatLng().longitude;
+                                latitude.setText(lati + "");
+                                longitude.setText(lng + "");
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to fetch coordinates", Toast.LENGTH_SHORT).show();
+                        });
             }
         });
 
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
+        //ends here
+
+        Button proceed = dialog.findViewById(R.id.proceed_button);
+        proceed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //more logic to follow
+
+                try {
+                    double la = Double.parseDouble(latitude.getText().toString());
+                    double lo = Double.parseDouble(longitude.getText().toString());
+                    String soil = soilType.getText().toString();
+                    String metals = "";
+                    String name = farmName.getText().toString();
+                    String locatioN = etLocation.getText().toString();
+                    String size = farmSize.getText().toString();
+                    String primaryCrops = crops .getText().toString();
+
+
+                    Farm newFarm = new Farm("", currUserID, la, lo, soil, metals,name,size,primaryCrops,locatioN);
+                    addFarm(newFarm,v);
+                    dialog.dismiss();
+
+                    if (take_measurement.isChecked()){
+                        startActivity(new Intent(getContext(), MeasurementsPage.class));
+                    }
+                } catch (NumberFormatException e) {
+                    Toast.makeText(v.getContext(), "Invalid number format", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+        Button cancel = dialog.findViewById(R.id.cancel_button);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.dialoganimation;
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 }
