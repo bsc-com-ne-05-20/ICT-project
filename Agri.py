@@ -36,7 +36,7 @@ class Farmer_AgriGpt:
 
 
 if __name__ == "__main__":
-    api_key = "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"
+    api_key = "" #We will use the key uploaded through some environment variables for we musnt expose the key
     agrigpt =Farmer_AgriGpt(api_key)
 
     while True:
