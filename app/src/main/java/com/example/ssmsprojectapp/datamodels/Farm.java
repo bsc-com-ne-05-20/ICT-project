@@ -1,6 +1,11 @@
 package com.example.ssmsprojectapp.datamodels;
 
-public class Farm {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
+public class Farm implements Parcelable {
     private String id;  // Firestore document ID
     private String farmerId;  // Reference to owner
     private double latitude;  // Changed from long to double
@@ -25,6 +30,29 @@ public class Farm {
     }  // Required for Firestore
 
 
+    protected Farm(Parcel in) {
+        id = in.readString();
+        farmerId = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        soilType = in.readString();
+        farmName = in.readString();
+        farmSize = in.readString();
+        crops = in.readString();
+        location = in.readString();
+    }
+
+    public static final Creator<Farm> CREATOR = new Creator<Farm>() {
+        @Override
+        public Farm createFromParcel(Parcel in) {
+            return new Farm(in);
+        }
+
+        @Override
+        public Farm[] newArray(int size) {
+            return new Farm[size];
+        }
+    };
 
     public String getId() {
         return id;
@@ -96,5 +124,23 @@ public class Farm {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(farmerId);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+        dest.writeString(soilType);
+        dest.writeString(farmName);
+        dest.writeString(farmSize);
+        dest.writeString(crops);
+        dest.writeString(location);
     }
 }

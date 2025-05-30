@@ -46,15 +46,26 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 
 public class HomeFragment extends Fragment {
 
+    private TextView recommenda;
+
+    private static final String RENDER_URL = "https://zithekatu-6.onrender.com/ask";
+
+    private String query = "Give 2 very short,precise top Crop recommendation in bullet form based on the following soil data preferably crops grown in malawi,please dont put the asterisks";
     private LinearLayout linearLayout;
    private MeasurementsAdapter farmMeasurementRAdapter;
    private RecyclerView recyclerView;
@@ -106,7 +117,7 @@ public class HomeFragment extends Fragment {
 
     //the interface to handle data sharing to activities
     public interface MeasurementsListDataListener {
-        void onListDataPassed(List<Measurement> list);
+        void onListDataPassed(Farm farm);
     }
 
     public HomeFragment() {
@@ -135,6 +146,8 @@ public class HomeFragment extends Fragment {
 
         //init database helper
         measurementDb = new MeasurementDbHelper(getContext());
+
+        recommenda = view.findViewById(R.id.cRec);
 
         //init the layout
         linearLayout = view.findViewById(R.id.homepage_layout);
@@ -276,9 +289,9 @@ public class HomeFragment extends Fragment {
     }
 
     //attach the measurement list to yhe fragment
-    private void sendListToActivity(List<Measurement> list) {
+    private void sendListToActivity(Farm farm) {
         if (measurementListDataListener != null) {
-            measurementListDataListener.onListDataPassed(list);
+            measurementListDataListener.onListDataPassed(farm);
         }
     }
 
@@ -321,7 +334,7 @@ public class HomeFragment extends Fragment {
         currentLatitude = farm.getLatitude();
         currentLongitude = farm.getLongitude();
 
-
+        sendListToActivity(farm);
         dismissAlertDialog();
         //update ui
 
@@ -423,6 +436,9 @@ public class HomeFragment extends Fragment {
                             nitrogen_val.setText(latestMeasurement.getNitrogen() +"");
                             phosphorous_val.setText(latestMeasurement.getPhosphorus() +"");
                             potassium_val.setText(latestMeasurement.getPotassium() +"");
+
+                            sendQuestionToApi(query + latestMeasurement.getSalinity() + latestMeasurement.getMoisture() + latestMeasurement.getPh() + latestMeasurement.getNitrogen() +latestMeasurement.getPhosphorus() + latestMeasurement.getPotassium());
+
                         }
                     });
 
@@ -591,5 +607,48 @@ public class HomeFragment extends Fragment {
             tvWind.setText(String.format(Locale.getDefault(), "Wind: %.1f m/s", weather.getWind().getSpeed()));
         }
 
+    }
+
+
+    private void sendQuestionToApi(String question) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(RENDER_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setDoOutput(true);
+
+                JSONObject jsonInput = new JSONObject();
+                jsonInput.put("question", question);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonInput.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                Scanner scanner = new Scanner(conn.getInputStream());
+                StringBuilder response = new StringBuilder();
+                while (scanner.hasNext()) {
+                    response.append(scanner.nextLine());
+                }
+                scanner.close();
+
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String reply = jsonResponse.getString("response");
+
+
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //set recommendation
+                        recommenda.setText(reply);
+                    }
+                });
+
+            } catch (Exception e) {
+                //runOnUiThread(() -> responseText.setText("Error: " + e.getMessage()));
+            }
+        }).start();
     }
 }

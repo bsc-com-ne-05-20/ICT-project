@@ -57,6 +57,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,9 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
     private FirestoreRepository repository;
     private String currentFarmerId;
     private String currentUsername;
-    private String selectedFarmname;
+    private String farmID;
+
+    private Farm farm;
 
     private ProgressDialog progressDialog;
     private AlertDialog noFarmsDialog;
@@ -131,7 +134,9 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
         addmeasurement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HomePage.this, MeasurementsPage.class));
+                Intent intent = new Intent(HomePage.this,MeasurementsPage.class);
+                intent.putExtra("FARM",farm);
+                startActivity(intent);
             }
         });
 
@@ -294,7 +299,10 @@ public class HomePage extends AppCompatActivity implements HomeFragment.Measurem
 
 
     @Override
-    public void onListDataPassed(List<Measurement> list) {
+    public void onListDataPassed(Farm farm) {
+
+        this.farm = farm;
+
 
     }
 

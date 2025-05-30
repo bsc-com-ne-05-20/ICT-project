@@ -1,97 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-    tools:context=".MeasurementsPage">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/main" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/white" tools:context=".MeasurementsPage">
+    <com.google.android.material.appbar.AppBarLayout android:id="@+id/appBarLayout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="Take Measurements"
-            app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge"
-            app:subtitleTextColor="#DEDADA"
-            app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
-            app:titleTextColor="@android:color/white" />
+            app:title="Take measurement"
+            app:titleTextAppearance="@style/TextAppearance.Material3.BodyLarge" app:subtitleTextColor="#DEDADA" app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small" app:titleTextColor="@android:color/white"/>
     </com.google.android.material.appbar.AppBarLayout>
+    <TextView android:id="@+id/tvStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status: Ready" android:textSize="18sp" android:textColor="@color/black" android:textStyle="bold" android:layout_marginStart="15dp" android:layout_marginEnd="15dp" android:padding="8dp"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginStart="15dp" android:layout_marginEnd="15dp">
+        <Button android:id="@+id/btnConnect" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAllCaps="false" android:text="Connect Device"/>
 
-
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Status: Ready"
-        android:textSize="18sp"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:padding="8dp"/>
-
-    <Button
-        android:id="@+id/btnConnect"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:textAllCaps="false"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:text="Connect"
-        android:layout_marginTop="16dp"/>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_marginTop="16dp"
-        android:padding="5dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/box">
-
-        <TextView
-            android:id="@+id/tvData"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:gravity="center"
-            android:text="No data received yet"
-            android:textSize="16sp"/>
+    </LinearLayout>
+    <ProgressBar android:id="@+id/progress_bar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone" android:layout_marginTop="8dp"/>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="16dp" android:padding="5dp" android:layout_marginStart="15dp" android:layout_marginEnd="15dp" android:background="@drawable/box">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/tv_sresults"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sensor data unavailable"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"/>
+            <TextView android:id="@+id/tv_results"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Soil data will appear here"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:padding="8dp"/>
+        </LinearLayout>
     </ScrollView>
-
     <Button
-        android:id="@+id/button_takemeasurement"
-        style="@style/Widget.MaterialComponents.Button"
-        android:textAllCaps="false"
+        android:id="@+id/btn_fetch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#EF991A"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginTop="15dp"
-        android:text="Take measurement" />
-
-    <Button
-        android:id="@+id/button_upload"
         style="@style/Widget.MaterialComponents.Button"
-        android:textAllCaps="false"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/main_color"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginTop="15dp"
-        android:text="upload data" />
-
+        android:layout_marginTop="5dp"
+        android:textAllCaps="false"
+        android:text="Take measurement"/>
+    <Button android:id="@+id/button_upload" style="@style/Widget.MaterialComponents.Button" android:textAllCaps="false" android:layout_width="match_parent" android:layout_height="wrap_content" android:backgroundTint="@color/main_color" android:layout_marginStart="15dp" android:layout_marginEnd="15dp" android:layout_marginTop="15dp" android:layout_marginBottom="15dp" android:text="Upload Data"/>
 </LinearLayout>

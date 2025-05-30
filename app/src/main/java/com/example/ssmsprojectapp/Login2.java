@@ -73,7 +73,7 @@ public class Login2 extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Login2.this, Login1.class));
+                startActivity(new Intent(Login2.this, RegisterFarmer.class));
             }
         });
     }

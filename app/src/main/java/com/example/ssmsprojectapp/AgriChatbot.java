@@ -37,6 +37,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Scanner;
 
 public class AgriChatbot extends AppCompatActivity {
     private RecyclerView messagesRecyclerView;
@@ -56,9 +57,12 @@ public class AgriChatbot extends AppCompatActivity {
     // Database helper
     private ChatDatabaseHelper dbHelper;
 
+    private TextView sug1,sug2,sug3;
+    private String sgt1,sgt2,sgt3;
+
     // Update with your Render URL
     //https://cornelliusbonongwe-agrichatbot.hf.space/ask
-    private static final String RENDER_URL = "https://shimschat-15.onrender.com/ask";
+    private static final String RENDER_URL = "https://zithekatu-6.onrender.com/ask";
     private static final int TIMEOUT = 20000; // 10 seconds
 
     @SuppressLint("MissingInflatedId")
@@ -100,13 +104,48 @@ public class AgriChatbot extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         //inputMethodManager.showSoftInput(messageInput,InputMethodManager.SHOW_IMPLICIT);
 
-        suggestionsRecycler = findViewById(R.id.suggestions_recycler);
-        suggestionsRecycler.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false));
-        suggestionsRecycler.setAdapter(new SuggetionAdapter());
 
         welcome_layout = findViewById(R.id.welcome_layout);
         scrollView = findViewById(R.id.messages_layout);
         sendButton = findViewById(R.id.send_button);
+
+        sug1 = findViewById(R.id.suggestion);
+        sug2 = findViewById(R.id.suggestion2);
+        sug3 = findViewById(R.id.suggestion3);
+
+
+
+
+
+        sug1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sgt1 = sug1.getText().toString();
+                sendMessage(sgt1);
+                welcome_layout.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        sug2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sgt2 = sug2.getText().toString();
+                sendMessage(sgt2);
+                welcome_layout.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        sug3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sgt3 = sug3.getText().toString();
+                sendMessage(sgt3);
+                welcome_layout.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void setupRecyclerView() {
@@ -155,6 +194,32 @@ public class AgriChatbot extends AppCompatActivity {
         }
     }
     //corne
+
+    private void sendMessage(String msg) {
+        //String query = messageInput.getText().toString().trim();
+        if (!msg.isEmpty()) {
+            long timestamp = Calendar.getInstance().getTimeInMillis();
+            Message newMessage = new Message(
+                    msg,
+                    "You",
+                    currentUserId,
+                    timestamp,
+                    true);
+
+            // Save to database
+            dbHelper.addMessage(newMessage);
+
+            messages.add(newMessage);
+            messageAdapter.updateMessages(messages);
+            messageInput.setText("");
+            scrollToBottom();
+
+            // send query to assistant
+            //new AgriGPTTask().execute(msg);
+            sendQuestionToApi(msg);
+        }
+
+    }
     private void sendMessage() {
         String query = messageInput.getText().toString().trim();
         if (!query.isEmpty()) {
@@ -175,7 +240,9 @@ public class AgriChatbot extends AppCompatActivity {
             scrollToBottom();
 
             // send query to assistant
-            new AgriGPTTask().execute(query);
+            //new AgriGPTTask().execute(query);
+            sendQuestionToApi(query);
+
         }
 
     }
@@ -257,5 +324,61 @@ public class AgriChatbot extends AppCompatActivity {
                 scrollToBottom();
             });
         }
+    }
+
+
+
+
+    private void sendQuestionToApi(String question) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(RENDER_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                conn.setDoOutput(true);
+
+                JSONObject jsonInput = new JSONObject();
+                jsonInput.put("question", question);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = jsonInput.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+
+                Scanner scanner = new Scanner(conn.getInputStream());
+                StringBuilder response = new StringBuilder();
+                while (scanner.hasNext()) {
+                    response.append(scanner.nextLine());
+                }
+                scanner.close();
+
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                String reply = jsonResponse.getString("response");
+
+                long timestamp = Calendar.getInstance().getTimeInMillis();
+                Message replyMessage = new Message(reply
+                        ,
+                        "Assistant",
+                        "user2",
+                        timestamp,
+                        false);
+
+                // Save to database
+                dbHelper.addMessage(replyMessage);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        messages.add(replyMessage);
+                        messageAdapter.updateMessages(messages);
+                        scrollToBottom();
+                    }
+                });
+
+            } catch (Exception e) {
+                //runOnUiThread(() -> responseText.setText("Error: " + e.getMessage()));
+            }
+        }).start();
     }
 }
