@@ -110,4 +110,19 @@ void readGPSData() {
   }
 }
 
+void printSensorReadings(float moisture, float temperature, float ec, float ph,
+                        int nitrogen, int phosphorus, int potassium) {
+  String readings = "Sensor Readings:\n";
+  readings += "Moisture: " + String(moisture) + "%\n";
+  readings += "Temperature: " + String(temperature) + "°C\n";
+  readings += "EC: " + String(ec) + "µS/cm\n";
+  readings += "pH: " + String(ph) + "\n";
+  readings += "NPK - N:" + String(nitrogen) + " P:" + String(phosphorus) + " K:" + String(potassium);
+  
+  Serial.println(readings);
+  if(SerialBT.connected()) {
+    SerialBT.println(readings);
+  }
+}
+
 
