@@ -34,14 +34,6 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:text="N, P, K" />
-
-                    <TextView
                         android:id="@+id/textView5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -49,7 +41,7 @@
                         android:textColor="@color/white"
                         android:textSize="25sp"
                         android:textStyle="bold"
-                        android:text="0.0" />
+                        android:text="N, P, K" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -93,20 +85,6 @@
                 android:layout_height="120dp"
                 app:cardCornerRadius="5dp"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/main_color"
-                android:textStyle="bold"
-                android:layout_marginTop="15dp"
-                android:text="NPK management"/>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                app:cardCornerRadius="5dp"
-                android:layout_marginBottom="15dp"/>
 
         </LinearLayout>
     </ScrollView>
