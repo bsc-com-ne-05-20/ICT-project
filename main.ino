@@ -34,4 +34,56 @@ void powerOnGPS() {
   Serial.println("GPS Powered On");
 }
 
+int readSensor(const byte* command) {
+  byte response[7];
+  int attempt = 0;
+  bool validResponse = false;
+
+  while (attempt < 3 && !validResponse) {
+    digitalWrite(RS485_RE, HIGH);
+    delay(10);
+    RS485Serial.write(command, 8);
+    RS485Serial.flush();
+    digitalWrite(RS485_RE, LOW);
+    delay(100);
+
+    if (RS485Serial.available() >= 7) {
+      for (int i = 0; i < 7; i++) response[i] = RS485Serial.read();
+      if ((response[5] == 0x00) && (response[6] == 0x00)) { // CRC check
+        validResponse = true;
+        return (response[3] << 8) | response[4];
+      }
+    }
+    attempt++;
+    delay(50);
+  }
+  return -9999; // Error value
+}
+
+String prepareJSON(float moisture, float temperature, float ec, float ph, 
+                  int nitrogen, int phosphorus, int potassium) {
+  DynamicJsonDocument doc(512);
+
+  // Soil parameters
+  doc["moisture"] = moisture;
+  doc["temperature"] = temperature;
+  doc["ec"] = ec;
+  doc["ph"] = ph;
+  doc["nitrogen"] = nitrogen;
+  doc["phosphorus"] = phosphorus;
+  doc["potassium"] = potassium;
+
+  // GPS data
+  if (gps.location.isValid()) {
+    doc["latitude"] = String(gps.location.lat(), 6);
+    doc["longitude"] = String(gps.location.lng(), 6);
+  } else {
+    doc["location"] = "unavailable";
+  }
+
+  String output;
+  serializeJson(doc, output);
+  return output;
+}
+
 
