@@ -408,17 +408,11 @@ public class NutrientsFragment extends Fragment {
                 "Timestamp: %s\n\n" +
                         "Nitrogen: %.1f ppm\n" +
                         "Phosphorus: %.1f ppm\n" +
-                        "Potassium: %.1f ppm\n\n" +
-                        "pH: %.1f\n" +
-                        "Temperature: %.1f°C\n" +
-                        "Moisture: %.1f%%",
+                        "Potassium: %.1f ppm\n\n",
                 dateFormat.format(measurement.getTimestamp()),
                 measurement.getNitrogen(),
                 measurement.getPhosphorus(),
                 measurement.getPotassium(),
-                measurement.getPh(),
-                measurement.getTemperature(),
-                measurement.getMoisture());
     }
 
     private class DateAxisValueFormatter extends ValueFormatter {
