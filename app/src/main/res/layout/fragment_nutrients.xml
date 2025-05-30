@@ -39,7 +39,7 @@
                         android:gravity="center"
                         android:textColor="@color/white"
                         android:textSize="18sp"
-                        android:text="Nutrients levels" />
+                        android:text="N, P, K" />
 
                     <TextView
                         android:id="@+id/textView5"
@@ -57,7 +57,7 @@
                         android:gravity="center"
                         android:textColor="#E9E8E8"
                         android:textSize="16sp"
-                        android:text="%" />
+                        android:text="g/kg, ppm, ppm" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
                         android:padding="5dp"
                         android:background="#055B08"
                         android:textSize="18sp"
-                        android:text="Optimal (6.0 - 7.0)" />
+                        android:text="---" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -86,7 +86,7 @@
                 android:textSize="18sp"
                 android:textColor="@color/main_color"
                 android:textStyle="bold"
-                android:text="About Nutrients"/>
+                android:text="About NPK"/>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -100,7 +100,7 @@
                 android:textColor="@color/main_color"
                 android:textStyle="bold"
                 android:layout_marginTop="15dp"
-                android:text="Nutrients management"/>
+                android:text="NPK management"/>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
