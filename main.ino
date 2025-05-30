@@ -86,4 +86,28 @@ String prepareJSON(float moisture, float temperature, float ec, float ph,
   return output;
 }
 
+void readGPSData() {
+  while (gpsSerial.available() > 0) {
+    gps.encode(gpsSerial.read());
+  }
+  
+  if (gps.location.isValid()) {
+    Serial.print("GPS Location - Lat: ");
+    Serial.print(gps.location.lat(), 6);
+    Serial.print(", Lng: ");
+    Serial.println(gps.location.lng(), 6);
+  } else {
+    Serial.println("GPS location not available");
+  }
+  
+  if (gps.time.isValid()) {
+    Serial.print("GPS Time - ");
+    Serial.print(gps.time.hour());
+    Serial.print(":");
+    Serial.print(gps.time.minute());
+    Serial.print(":");
+    Serial.println(gps.time.second());
+  }
+}
+
 
