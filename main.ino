@@ -1,5 +1,7 @@
 #include <HardwareSerial.h>
 #include <BluetoothSerial.h>
+#include <TinyGPS++.h>
+#include <ArduinoJson.h>
 
 //pin definitions
 #define MODEM_PWRKEY 4
