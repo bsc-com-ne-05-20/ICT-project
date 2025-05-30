@@ -13,48 +13,65 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.example.ssmsprojectapp.datamodels.Farm;
+import com.example.ssmsprojectapp.datamodels.FirestoreRepository;
+import com.example.ssmsprojectapp.datamodels.Measurement;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MeasurementsPage extends AppCompatActivity{
+public class MeasurementsPage extends AppCompatActivity {
 
+    private FirestoreRepository repository;
+    private  String selectedFarmId;
+
+    // Soil Data Constants
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final String[] HEAVY_METALS = {
+            "zinc_extractable",
+            "iron_extractable",
+            "aluminium_extractable",
+            "magnesium_extractable",
+            "ph",
+            "nitrogen_total",
+            "phosphorous_extractable",
+            "potassium_extractable",
+            "bulk_density",
+            "calcium_extractable",
+            "sulphur_extractable"
+    };
+    private static final String DEPTH_LAYER = "0-20";
+
+    // BLE Constants
     private static final String TAG = "SoilMonitorApp";
-
-    // BLE UUIDs matching the ESP32 code
     private static final UUID SERVICE_UUID = UUID.fromString("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
     private static final UUID CHARACTERISTIC_UUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
     private static final String DEVICE_NAME = "SoilMonitor";
-
-    // UI Elements
-    private TextView tvStatus, tvData;
-    private Button btnConnect;
-
-    // BLE Variables
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothGatt bluetoothGatt;
-    private BluetoothDevice targetDevice;
-    private boolean connected = false;
-
-    // Permission request code
     private static final int REQUEST_ALL_PERMISSIONS = 1;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.BLUETOOTH,
@@ -64,22 +81,71 @@ public class MeasurementsPage extends AppCompatActivity{
             Manifest.permission.BLUETOOTH_CONNECT
     };
 
-    @SuppressLint("MissingPermission")
+    // UI Elements
+    private TextView tvResults, tvStatus, tvData;
+    private Button btnFetch, btnConnect,btnUpload;
+    private ProgressBar progressBar;
+
+    // Soil Data Variables
+    private boolean soilDataFetched = false;
+
+    // BLE Variables
+    private BluetoothAdapter bluetoothAdapter;
+    private BluetoothGatt bluetoothGatt;
+    private BluetoothDevice targetDevice;
+    private boolean connected = false;
+
+    //initializing soil property variables
+    private double bulk_density;
+    private double zinc;
+    private double calcium;
+    private double potassium;
+    private double nitrogen;
+    private double ph;
+    private double sulphur;
+    private double aluminium;
+    private double magnesium;
+    private double iron;
+    private double phosphorous;
+
+    private double lat;
+    private double lon;
+
+    private String farmId;
+
+    private Farm farm;
+
+
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_measurements_page);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+
+        repository = new FirestoreRepository();
+
+        farm = getIntent().getParcelableExtra("FARM");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setSubtitle(farm.getFarmName());
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        assert farm != null;
+        selectedFarmId = farm.getId();
+        lat = farm.getLatitude();
+        lon = farm.getLongitude();
 
         // Initialize UI
+        tvResults = findViewById(R.id.tv_results);
         tvStatus = findViewById(R.id.tvStatus);
-        tvData = findViewById(R.id.tvData);
+        //tvData = findViewById(R.id.tvData);
+        btnUpload = findViewById(R.id.button_upload);
+        btnFetch = findViewById(R.id.btn_fetch);
         btnConnect = findViewById(R.id.btnConnect);
+        progressBar = findViewById(R.id.progress_bar);
 
         // Check permissions
         if (!checkPermissions()) {
@@ -89,7 +155,15 @@ public class MeasurementsPage extends AppCompatActivity{
         // Initialize Bluetooth
         initializeBluetooth();
 
-        // Set up button click listener
+        // Set up button click listeners
+        btnFetch.setOnClickListener(v -> {
+            if (LocationHelper.checkLocationPermission(this)) {
+                fetchData();
+            } else {
+                requestLocationPermission();
+            }
+        });
+
         btnConnect.setOnClickListener(v -> {
             if (!connected) {
                 connectToDevice();
@@ -97,9 +171,155 @@ public class MeasurementsPage extends AppCompatActivity{
                 disconnectFromDevice();
             }
         });
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addNewMeasurement(v);
+            }
+        });
     }
 
+    // Soil Data Methods
+    private void fetchData() {
+        btnFetch.setEnabled(false);
+        progressBar.setVisibility(View.VISIBLE);
 
+        fetchHeavyMetals(lat,lon);
+    }
+
+    private void fetchHeavyMetals(double lat, double lng) {
+        Map<String, Double> allResults = new ConcurrentHashMap<>();
+        AtomicInteger completedRequests = new AtomicInteger(0);
+
+        for (String metal : HEAVY_METALS) {
+            SoilDataFetcher.fetchSoilProperties(lat, lng, metal, DEPTH_LAYER,
+                    new SoilDataFetcher.SoilDataCallback() {
+                        @Override
+                        public void onSuccess(Double value) {
+                            // Assign values to variables based on property name
+                            switch (metal) {
+                                case "zinc_extractable":
+                                    zinc = value;
+                                    break;
+                                case "iron_extractable":
+                                    iron = value;
+                                    break;
+                                case "aluminium_extractable":
+                                    aluminium = value;
+                                    break;
+                                case "magnesium_extractable":
+                                    magnesium = value;
+                                    break;
+                                case "ph":
+                                    ph = value;
+                                    break;
+                                case "nitrogen_total":
+                                    nitrogen = value;
+                                    break;
+                                case "phosphorous_extractable":
+                                    phosphorous = value;
+                                    break;
+                                case "potassium_extractable":
+                                    potassium = value;
+                                    break;
+                                case "bulk_density":
+                                    bulk_density = value;
+                                    break;
+                                case "calcium_extractable":
+                                    calcium = value;
+                                    break;
+                                case "sulphur_extractable":
+                                    sulphur = value;
+                                    break;
+                            }
+
+                            allResults.put(metal, value);
+
+                            if (completedRequests.incrementAndGet() == HEAVY_METALS.length) {
+                                runOnUiThread(() -> {
+                                    String result = formatMetalResults(allResults);
+                                    tvResults.setText(result);
+                                    btnFetch.setEnabled(true);
+                                    progressBar.setVisibility(View.GONE);
+                                    soilDataFetched = true;
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Log.e("FETCH_ERROR", "Failed to fetch " + metal + ": " + error);
+                            allResults.put(metal, Double.NaN);
+
+                            if (completedRequests.incrementAndGet() == HEAVY_METALS.length) {
+                                runOnUiThread(() -> {
+                                    String result = formatMetalResults(allResults);
+                                    tvResults.setText(result);
+                                    btnFetch.setEnabled(true);
+                                    progressBar.setVisibility(View.GONE);
+                                });
+                            }
+                        }
+                    });
+        }
+    }
+
+    private String formatMetalResults(Map<String, Double> metals) {
+        StringBuilder sb = new StringBuilder();
+
+        // Create a map of property names to their units
+        Map<String, String> propertyUnits = new HashMap<String, String>() {{
+            put("zinc_extractable", "ppm");
+            put("iron_extractable", "ppm");
+            put("aluminium_extractable", "ppm");
+            put("magnesium_extractable", "ppm");
+            put("ph", "");  // pH is unitless
+            put("nitrogen_total", "g/kg");
+            put("phosphorous_extractable", "ppm");
+            put("potassium_extractable", "ppm");
+            put("bulk_density", "g/cm³");
+            put("calcium_extractable", "ppm");
+            put("sulphur_extractable", "ppm");
+        }};
+
+        for (Map.Entry<String, Double> entry : metals.entrySet()) {
+            String property = entry.getKey();
+            double value = entry.getValue();
+            String displayName = property.replace("_extractable", "")
+                    .replace("_total", "")
+                    .replace("_fraction", "");
+
+            // Get the appropriate unit
+            String unit = propertyUnits.get(property);
+            if (unit.isEmpty()) {
+                sb.append(String.format(Locale.US, "• %s: %.2f\n",
+                        capitalize(displayName),
+                        value));
+            } else {
+                sb.append(String.format(Locale.US, "• %s: %.2f %s\n",
+                        capitalize(displayName),
+                        value,
+                        unit));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
+    }
+
+    // BLE Methods
     private boolean checkPermissions() {
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -116,30 +336,31 @@ public class MeasurementsPage extends AppCompatActivity{
     @SuppressLint("MissingPermission")
     private void initializeBluetooth() {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
-
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            Toast.makeText(this, "Bluetooth is not available or disabled", Toast.LENGTH_LONG).show();
-            finish();
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            bluetoothAdapter = bluetoothManager.getAdapter();
         }
 
-        // Start scanning for devices (you could implement a scan here if needed)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
+            if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+                Toast.makeText(this, "Bluetooth is not available or disabled", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+
         updateStatus("Ready to connect");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @SuppressLint("MissingPermission")
     private void connectToDevice() {
         updateStatus("Searching for device...");
 
-        // In a real app, you might want to scan for devices first
-        // For simplicity, we'll try to connect directly to the known device name
-
-        // Find the device by name
-        for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
-            if (DEVICE_NAME.equals(device.getName())) {
-                targetDevice = device;
-                break;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
+            for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+                if (DEVICE_NAME.equals(device.getName())) {
+                    targetDevice = device;
+                    break;
+                }
             }
         }
 
@@ -148,13 +369,15 @@ public class MeasurementsPage extends AppCompatActivity{
             return;
         }
 
-        updateStatus("Connecting to " + targetDevice.getName() + "...");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
+            updateStatus("Connecting to " + targetDevice.getName() + "...");
+        }
         btnConnect.setEnabled(false);
 
-        // Connect to the GATT server
         bluetoothGatt = targetDevice.connectGatt(this, false, gattCallback);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @SuppressLint("MissingPermission")
     private void disconnectFromDevice() {
         if (bluetoothGatt != null) {
@@ -174,6 +397,7 @@ public class MeasurementsPage extends AppCompatActivity{
             // GPS Data
             String gps = json.getString("gps");
             String[] latLng = gps.split(",");
+            displayText.append("Sensor Measurements:\n\n");
             displayText.append("GPS Coordinates:\n");
             displayText.append("  Latitude: ").append(latLng[0]).append("\n");
             displayText.append("  Longitude: ").append(latLng[1]).append("\n\n");
@@ -210,11 +434,9 @@ public class MeasurementsPage extends AppCompatActivity{
                 updateStatus("Connected to " + targetDevice.getName());
                 connected = true;
 
-                // Discover services
                 runOnUiThread(() -> btnConnect.setText("Disconnect"));
                 btnConnect.setEnabled(true);
 
-                // Discover services after a small delay
                 new Handler().postDelayed(() -> {
                     if (bluetoothGatt != null) {
                         bluetoothGatt.discoverServices();
@@ -245,12 +467,10 @@ public class MeasurementsPage extends AppCompatActivity{
                     BluetoothGattCharacteristic characteristic = service.getCharacteristic(CHARACTERISTIC_UUID);
 
                     if (characteristic != null) {
-                        // Enable notifications
                         gatt.setCharacteristicNotification(characteristic, true);
 
-                        // Write to descriptor to enable notifications
                         BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                                UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")); // Standard CCCD UUID
+                                UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
                         if (descriptor != null) {
                             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
                             gatt.writeDescriptor(descriptor);
@@ -291,6 +511,37 @@ public class MeasurementsPage extends AppCompatActivity{
         }
     };
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchData();
+            } else {
+                Toast.makeText(this,
+                        "Location permission required for soil analysis",
+                        Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == REQUEST_ALL_PERMISSIONS) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (!allGranted) {
+                Toast.makeText(this,
+                        "Bluetooth permissions are required for device connection",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     @SuppressLint("MissingPermission")
     @Override
     protected void onDestroy() {
@@ -302,4 +553,44 @@ public class MeasurementsPage extends AppCompatActivity{
         }
     }
 
+    //new starts here
+
+    private void addNewMeasurement(View view) {
+        if (selectedFarmId == null || selectedFarmId.isEmpty()) {
+            Toast.makeText(view.getContext(), "Please select a farm first", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Measurement newMeasurement = new Measurement(
+                "", // ID will be generated by Firestore
+                selectedFarmId,
+                0.0, // salinity
+                0.0, // moisture
+                22.0, // temperature
+                ph, // ph
+                nitrogen, // nitrogen
+                phosphorous, // phosphorus
+                potassium, // potassium
+                "None", // metals
+                zinc,
+                calcium,
+                sulphur,
+                iron,
+                magnesium,
+                aluminium
+        );
+
+        repository.addMeasurement(
+                newMeasurement,
+                documentReference -> {
+                    // Measurement added successfully
+                    Toast.makeText(view.getContext(), "Measurement added successfully", Toast.LENGTH_SHORT).show();
+                    // loadMeasurements(selectedFarmId); // Refresh measurements
+                },
+                e -> {
+                    // Error adding measurement
+                    Toast.makeText(view.getContext(), "Error adding measurement: ", Toast.LENGTH_SHORT).show();
+                }
+        );
+    }
 }
