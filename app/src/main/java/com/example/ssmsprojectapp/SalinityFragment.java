@@ -349,10 +349,7 @@ public class SalinityFragment extends Fragment {
 
         return String.format(Locale.getDefault(),
                 "Timestamp: %s\n\n" +
-                        "Salinity: %.1f dS/m\n\n" +
-                        "Moisture: %.1f%%\n" +
-                        "Temperature: %.1f°C\n" +
-                        "pH: %.1f",
+                        "Salinity: %.1f dS/m\n\n",
                 dateFormat.format(measurement.getTimestamp()),
                 measurement.getSalinity(),
                 measurement.getMoisture(),
