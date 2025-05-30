@@ -14,6 +14,17 @@
     <string name="desc_fourth">Join a growing community of farmers using technology to improve agriculture. Transform the way you monitor soil health!</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="about_moisture">The optimal range for most crops is between 50–75% of field capacity (the soil\'s water-holding capacity).Too little moisture (less than 50%) causes drought stress, while excess moisture (>90%) leads to waterlogging and root diseases.</string>
+    <string name="about_moisture">The optimal range for most crops is between 20–60% of field capacity (the soil\'s water-holding capacity).Too little moisture (<20%) causes drought stress, while excess moisture (>80%) leads to waterlogging and root diseases.</string>
+    <string name="about_ph">Most crops grow best in soil with a pH between 5.5 and 7.5. A pH below 5.5 can limit nutrient availability and lead to toxicities, while a pH above 8.0 may cause deficiencies in essential nutrients like iron and phosphorus.</string>
+    <string name="about_npk">NPK refers to the three primary nutrients plants need: Nitrogen (N) for leafy growth, Phosphorus (P) for root and flower development, and Potassium (K) for overall health and disease resistance. Balanced levels are essential—deficiencies or excesses can stunt growth or reduce yields.</string>
+    <string name="about_temperature">Most crops thrive in soil temperatures between 18–30°C. Low temperatures slow root activity and nutrient uptake, while high temperatures (>35°C) can damage roots and reduce soil moisture retention.</string>
+    <string name="about_salinity">Soil salinity affects a plant’s ability to absorb water. Electrical conductivity (EC) levels above 4 dS/m can harm most crops, causing salt stress, poor growth, and lower yields. Proper drainage and leaching can reduce salinity.</string>
+    <string name="about_zinc">Zinc is vital for enzyme activity and plant growth. Deficiencies, especially in alkaline soils, lead to stunted growth and leaf discoloration. Crops need zinc in small but consistent amounts for healthy development.</string>
+    <string name="about_bulk_density">Bulk density reflects soil compaction. Ideal values range from 1.1–1.4 g/cm³ for most crops. High bulk density reduces root penetration and water movement, while very low values may indicate poor structure or excessive organic matter.</string>
+    <string name="about_aluminium">Excess aluminium, common in acidic soils (pH < 5.5), can be toxic to roots and limit nutrient uptake. Liming acidic soils helps reduce aluminium availability and supports healthier plant growth.</string>
+    <string name="about_iron">Iron is crucial for chlorophyll production and plant respiration. Deficiency, often seen in high-pH soils, causes yellowing between leaf veins (chlorosis). Too much iron, especially in waterlogged soils, can also be harmful.</string>
+    <string name="about_calcium">Calcium strengthens plant cell walls and supports root and leaf development. Deficiencies can lead to poor root growth and disorders like blossom end rot. Ideal levels help balance soil pH and improve nutrient uptake.</string>
+    <string name="about_magnesium">Magnesium is essential for photosynthesis, as it's the central element in chlorophyll. Deficiency causes yellowing between leaf veins, especially in older leaves. Balanced magnesium supports energy transfer and enzyme function.</string>
+    <string name="about_phosphorus">Phosphorus is vital for root development, flowering, and energy transfer. Deficiency leads to stunted growth and dark or purplish leaves. It's most available in soil with pH between 6.0 and 7.0.</string>
 
 </resources>
