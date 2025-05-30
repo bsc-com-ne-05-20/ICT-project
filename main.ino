@@ -9,8 +9,13 @@
 #define RS485_RX 27
 #define RS485_TX 14
 
+// Bluetooth Serial Object
 BluetoothSerial SerialBT;
-HardwareSerial RS485Serial(2);  
+
+// Serial Ports
+HardwareSerial RS485Serial(2);  // For soil sensors
+HardwareSerial gpsSerial(1);    // UART1 for SIM7000G
+TinyGPSPlus gps;
 
 // Modbus commands
 const byte cmdMoisture[]    = {0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x84, 0x0A};
