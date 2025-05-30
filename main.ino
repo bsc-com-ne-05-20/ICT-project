@@ -125,4 +125,28 @@ void printSensorReadings(float moisture, float temperature, float ec, float ph,
   }
 }
 
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Initializing Soil Monitoring System...");
+
+  // Initialize Bluetooth
+  SerialBT.begin("SoilMonitor-T7000"); // Bluetooth device name
+  Serial.println("Bluetooth device ready for pairing!");
+
+  // Initialize RS485 for soil sensors
+  RS485Serial.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX);
+  pinMode(RS485_RE, OUTPUT);
+  digitalWrite(RS485_RE, LOW);
+
+  // Initialize GPS
+  gpsSerial.begin(115200, SERIAL_8N1, 18, 19);
+  powerOnGPS();
+
+  // Initialize modem power
+  pinMode(MODEM_PWRKEY, OUTPUT);
+  digitalWrite(MODEM_PWRKEY, HIGH);
+  delay(1000);
+  digitalWrite(MODEM_PWRKEY, LOW);
+}
+
 
