@@ -149,4 +149,56 @@ void setup() {
   digitalWrite(MODEM_PWRKEY, LOW);
 }
 
+void loop() {
+  static uint32_t lastSend = 0;
+  
+  if (millis() - lastSend >= 10000) {
+    lastSend = millis();
+    
+    Serial.println("\n--- Collecting Sensor Data ---");
+    if(SerialBT.connected()) {
+      SerialBT.println("\n--- Collecting Sensor Data ---");
+    }
+    
+    float moisture = readSensor(cmdMoisture) / 10.0;
+    float temperature = readSensor(cmdTemperature) / 10.0;
+    float ec = readSensor(cmdEC);
+    float ph = readSensor(cmdPH) / 10.0;
+    int nitrogen = readSensor(cmdN);
+    int phosphorus = readSensor(cmdP);
+    int potassium = readSensor(cmdK);
+
+    readGPSData();
+    printSensorReadings(moisture, temperature, ec, ph, nitrogen, phosphorus, potassium);
+
+    String jsonData = prepareJSON(moisture, temperature, ec, ph, 
+                                nitrogen, phosphorus, potassium);
+    
+    Serial.println("Prepared JSON Data:");
+    Serial.println(jsonData);
+    
+    bool readingsValid = (moisture != -9999 && temperature != -9999 && 
+                         ec != -9999 && ph != -9999 && 
+                         nitrogen != -9999 && phosphorus != -9999 && 
+                         potassium != -9999);
+    
+    if (SerialBT.connected() && readingsValid) {
+      SerialBT.println(jsonData);
+      Serial.println("Data sent via Bluetooth");
+    } else if (!readingsValid) {
+      Serial.println("Sensor read failed - data not sent");
+      if(SerialBT.connected()) {
+        SerialBT.println("Sensor read failed - data not sent");
+      }
+    } else {
+      Serial.println("No Bluetooth connection - data not sent");
+    }
+    
+    Serial.println("--- End of Cycle ---");
+    if(SerialBT.connected()) {
+      SerialBT.println("--- End of Cycle ---");
+    }
+  }
+}
+
 
