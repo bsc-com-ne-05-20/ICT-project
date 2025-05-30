@@ -172,7 +172,7 @@ public class PhFragment extends Fragment {
         optimalMax.setLineWidth(1f);
         optimalMax.enableDashedLine(10f, 10f, 0f);
 
-        LimitLine optimalMin = new LimitLine(6.0f, "optimal Min");
+        LimitLine optimalMin = new LimitLine(5.5f, "optimal Min");
         optimalMin.setLineColor(Color.GREEN);
         optimalMin.setLineWidth(1f);
         optimalMin.enableDashedLine(10f, 10f, 0f);
@@ -344,10 +344,7 @@ public class PhFragment extends Fragment {
 
         return String.format(Locale.getDefault(),
                 "Timestamp: %s\n\n" +
-                        "pH: %.1f\n\n" +
-                        "Salinity: %.1f dS/m\n" +
-                        "Moisture: %.1f%%\n" +
-                        "Temperature: %.1f°C",
+                        "pH: %.1f\n\n",
                 dateFormat.format(measurement.getTimestamp()),
                 measurement.getPh(),
                 measurement.getSalinity(),

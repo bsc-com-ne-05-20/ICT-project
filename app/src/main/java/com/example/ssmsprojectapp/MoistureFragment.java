@@ -168,7 +168,7 @@ public class MoistureFragment extends Fragment {
     private void addOptimalRangeMarkers() {
         YAxis leftAxis = moistureChart.getAxisLeft();
 
-        LimitLine optimalLower = new LimitLine(40f, "Optimal Min");
+        LimitLine optimalLower = new LimitLine(20f, "Optimal Min");
         optimalLower.setLineColor(Color.GREEN);
         optimalLower.setLineWidth(1f);
         optimalLower.enableDashedLine(10f, 10f, 0f);
