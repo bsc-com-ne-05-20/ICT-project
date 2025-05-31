@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Soil Averages to Cloud"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"/>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Person/Location ID Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Location/Person ID"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPersonId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="e.g. FieldA_JohnDoe"
+            android:inputType="textCapWords|textNoSuggestions"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:importantForAutofill="no"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Upload Confirmation Checkbox -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp">
+
+        <CheckBox
+            android:id="@+id/checkBoxConfirmUpload"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:buttonTint="@color/colorPrimary"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="I verify this data is correct"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <!-- Location Coordinates Checkbox -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp">
+
+        <CheckBox
+            android:id="@+id/checkBoxIncludeCoordinates"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:buttonTint="@color/colorPrimary"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Include GPS coordinates"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <!-- Data Preview Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data to be uploaded:"
+        android:textSize="14sp"
+        android:textColor="@color/dark_gray"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/light_gray"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tvDataPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"/>
+    </LinearLayout>
+</LinearLayout>
